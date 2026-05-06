@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import styles from './login.module.css'
 
 /* ── Icons ─────────────────────────────────────────────────── */
 
@@ -35,25 +36,6 @@ function KakaoIcon() {
     </svg>
   )
 }
-
-function LogoMark() {
-  return (
-    <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
-      <defs>
-        <linearGradient id="lm-g" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FF6B6B"/>
-          <stop offset="50%" stopColor="#C850C0"/>
-          <stop offset="100%" stopColor="#4158D0"/>
-        </linearGradient>
-      </defs>
-      <path d="M17 3L2 14h4v17h22V14h4L17 3z" fill="url(#lm-g)" opacity="0.85"/>
-      <path d="M17 3L2 14h4v1L17 8.5 30 15v-1h4L17 3z" fill="white" opacity="0.18"/>
-      <rect x="11.5" y="19" width="11" height="12" rx="2" fill="white" opacity="0.12"/>
-      <rect x="14" y="21" width="6" height="10" rx="1.5" fill="url(#lm-g)" opacity="0.75"/>
-    </svg>
-  )
-}
-
 
 /* ── Data ───────────────────────────────────────────────────── */
 
@@ -100,9 +82,13 @@ export default function LoginPage() {
           from { opacity: 0; transform: translateY(20px); }
           to   { opacity: 1; transform: translateY(0);    }
         }
-        .anim-logo   { animation: fadeUp .6s .1s cubic-bezier(.16,1,.3,1) both; }
+        .anim-logo   { animation: fadeUp .6s .1s  cubic-bezier(.16,1,.3,1) both; }
         .anim-title  { animation: fadeUp .6s .22s cubic-bezier(.16,1,.3,1) both; }
         .anim-form   { animation: fadeUp .6s .34s cubic-bezier(.16,1,.3,1) both; }
+
+        @media (prefers-reduced-motion: reduce) {
+          .anim-logo, .anim-title, .anim-form { animation: none !important; }
+        }
 
         .login-cta:hover  { transform: translateY(-2px); box-shadow: 0 10px 36px rgba(255,107,107,.55) !important; }
         .login-cta:active { transform: translateY(0); }
@@ -128,27 +114,33 @@ export default function LoginPage() {
         .signup-link { transition: opacity .2s; }
         .signup-link:hover { opacity: .8; }
 
-        /* hide number input arrows */
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
       `}</style>
 
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        background: '#0A0A0F',
-        overflow: 'hidden',
-      }}>
+      {/* ── Root wrapper ── */}
+      <div
+        className={styles.wrapper}
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          background: '#0A0A0F',
+          overflowX: 'hidden', /* x-only so mobile can scroll vertically */
+        }}
+      >
 
         {/* ═══ LEFT PANEL — Immersive Hero ═══ */}
-        <div style={{
-          flex: '0 0 60%',
-          position: 'relative',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-end',
-          padding: '60px 72px',
-        }}>
+        <div
+          className={styles.leftPanel}
+          style={{
+            flex: '0 0 60%',
+            position: 'relative',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-end',
+            padding: '60px 72px',
+          }}
+        >
           {/* Seoul night background */}
           <div style={{
             position: 'absolute', inset: 0,
@@ -158,21 +150,21 @@ export default function LoginPage() {
             zIndex: 0,
           }}/>
 
-          {/* Dark overlay — left heavy for text, lighter toward right */}
+          {/* Dark overlay — left-heavy for text legibility */}
           <div style={{
             position: 'absolute', inset: 0,
             background: 'linear-gradient(to right, rgba(10,10,15,.94) 0%, rgba(10,10,15,.55) 65%, rgba(10,10,15,.2) 100%)',
             zIndex: 1,
           }}/>
 
-          {/* Bottom gradient for brand block legibility */}
+          {/* Bottom gradient */}
           <div style={{
             position: 'absolute', inset: 0,
             background: 'linear-gradient(to top, rgba(10,10,15,.9) 0%, transparent 55%)',
             zIndex: 1,
           }}/>
 
-          {/* Subtle noise grain */}
+          {/* Noise grain */}
           <div style={{
             position: 'absolute', inset: 0,
             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
@@ -194,11 +186,15 @@ export default function LoginPage() {
             }}/>
           ))}
 
-          {/* Decorative Seoul map grid (bottom-right corner of panel) */}
-          <svg style={{
-            position: 'absolute', bottom: '-20px', right: '-30px',
-            opacity: 0.055, zIndex: 2, pointerEvents: 'none',
-          }} width="260" height="260" viewBox="0 0 260 260">
+          {/* Decorative Seoul map grid */}
+          <svg
+            className={styles.mapGrid}
+            style={{
+              position: 'absolute', bottom: '-20px', right: '-30px',
+              opacity: 0.055, zIndex: 2, pointerEvents: 'none',
+            }}
+            width="260" height="260" viewBox="0 0 260 260"
+          >
             {Array.from({ length: 12 }, (_, i) => (
               <g key={i}>
                 <line x1={i * 24} y1="0" x2={i * 24} y2="260" stroke="#C850C0" strokeWidth="0.8"/>
@@ -210,40 +206,52 @@ export default function LoginPage() {
           </svg>
 
           {/* ── Brand content block ── */}
-          <div style={{ position: 'relative', zIndex: 3, maxWidth: '540px' }}>
-            {/* Brand name with shimmer gradient */}
-            <h1 style={{
-              fontFamily: 'Pretendard, sans-serif',
-              fontWeight: 900,
-              fontSize: 'clamp(3.75rem, 6.5vw, 5.75rem)',
-              lineHeight: 1.02,
-              letterSpacing: '-2.5px',
-              background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 30%, #C850C0 70%, #4158D0 100%)',
-              backgroundSize: '200% auto',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              animation: 'shimmer 3s infinite linear',
-              marginBottom: '14px',
-            }}>
+          <div
+            className={styles.brandBlock}
+            style={{ position: 'relative', zIndex: 3, maxWidth: '540px' }}
+          >
+            {/* Brand name with shimmer */}
+            <h1
+              className={styles.brandHeading}
+              style={{
+                fontFamily: 'Pretendard, sans-serif',
+                fontWeight: 900,
+                fontSize: 'clamp(3.75rem, 6.5vw, 5.75rem)',
+                lineHeight: 1.02,
+                letterSpacing: '-2.5px',
+                background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 30%, #C850C0 70%, #4158D0 100%)',
+                backgroundSize: '200% auto',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                animation: 'shimmer 3s infinite linear',
+                marginBottom: '14px',
+              }}
+            >
               SeoulMate
             </h1>
 
             {/* Tagline */}
-            <p style={{
-              fontFamily: 'Pretendard, sans-serif',
-              fontWeight: 400,
-              fontSize: '1.1rem',
-              lineHeight: 1.65,
-              letterSpacing: '0.05em',
-              color: 'rgba(240,240,245,0.65)',
-              marginBottom: '36px',
-            }}>
+            <p
+              className={styles.tagline}
+              style={{
+                fontFamily: 'Pretendard, sans-serif',
+                fontWeight: 400,
+                fontSize: '1.1rem',
+                lineHeight: 1.65,
+                letterSpacing: '0.05em',
+                color: 'rgba(240,240,245,0.65)',
+                marginBottom: '36px',
+              }}
+            >
               서울의 모든 순간이 특별해지는 곳
             </p>
 
             {/* Feature badges */}
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <div
+              className={styles.badges}
+              style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}
+            >
               {FEATURE_BADGES.map(({ icon, label }) => (
                 <div
                   key={label}
@@ -277,62 +285,84 @@ export default function LoginPage() {
         </div>
 
         {/* ═══ RIGHT PANEL — Login Form ═══ */}
-        <div style={{
-          flex: '0 0 40%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '48px 48px',
-          background: '#0A0A0F',
-          position: 'relative',
-          zIndex: 10,
-          borderLeft: '1px solid rgba(255,255,255,0.04)',
-        }}>
-          {/* Ambient glows */}
-          <div style={{
-            position: 'absolute', top: '15%', right: '-100px',
-            width: '320px', height: '320px', borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(200,80,192,0.09) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }}/>
-          <div style={{
-            position: 'absolute', bottom: '18%', left: '-60px',
-            width: '240px', height: '240px', borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(255,107,107,0.07) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }}/>
+        <div
+          className={styles.rightPanel}
+          style={{
+            flex: '0 0 40%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '48px 48px',
+            background: '#0A0A0F',
+            position: 'relative',
+            zIndex: 10,
+            borderLeft: '1px solid rgba(255,255,255,0.04)',
+          }}
+        >
+          {/* Ambient glows (desktop only) */}
+          <div
+            className={styles.ambientGlow}
+            style={{
+              position: 'absolute', top: '15%', right: '-100px',
+              width: '320px', height: '320px', borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(200,80,192,0.09) 0%, transparent 70%)',
+              pointerEvents: 'none',
+            }}
+          />
+          <div
+            className={styles.ambientGlow}
+            style={{
+              position: 'absolute', bottom: '18%', left: '-60px',
+              width: '240px', height: '240px', borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(255,107,107,0.07) 0%, transparent 70%)',
+              pointerEvents: 'none',
+            }}
+          />
 
-          <div style={{ width: '100%', maxWidth: '390px', position: 'relative' }}>
+          {/* Form container */}
+          <div
+            className={styles.formContainer}
+            style={{ width: '100%', maxWidth: '390px', position: 'relative' }}
+          >
 
             {/* ── Logo ── */}
-            <div className="anim-logo" style={{
-              display: 'flex', alignItems: 'center', gap: '10px',
-              marginBottom: '44px',
-            }}>
-              <LogoMark/>
-              <span style={{
-                fontFamily: 'Pretendard, sans-serif',
-                fontWeight: 800,
-                fontSize: '1.2rem',
-                background: 'linear-gradient(135deg, #FF6B6B, #C850C0)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}>
+            <div
+              className={`${styles.logoArea} anim-logo`}
+              style={{ marginBottom: '44px' }}
+            >
+              <span
+                className={styles.logoText}
+                style={{
+                  fontFamily: 'Pretendard, sans-serif',
+                  fontWeight: 800,
+                  fontSize: '1.35rem',
+                  letterSpacing: '-0.5px',
+                  background: 'linear-gradient(135deg, #FF6B6B, #C850C0)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
                 SeoulMate
               </span>
             </div>
 
             {/* ── Greeting ── */}
-            <div className="anim-title" style={{ marginBottom: '36px' }}>
-              <h2 style={{
-                fontFamily: 'Pretendard, sans-serif',
-                fontWeight: 700,
-                fontSize: '1.875rem',
-                lineHeight: 1.2,
-                color: '#F0F0F5',
-                marginBottom: '10px',
-              }}>
+            <div
+              className={`${styles.greetingBlock} anim-title`}
+              style={{ marginBottom: '36px' }}
+            >
+              <h2
+                className={styles.greetingTitle}
+                style={{
+                  fontFamily: 'Pretendard, sans-serif',
+                  fontWeight: 700,
+                  fontSize: '1.875rem',
+                  lineHeight: 1.2,
+                  color: '#F0F0F5',
+                  marginBottom: '10px',
+                }}
+              >
                 다시 만나서 반가워요 👋
               </h2>
               <p style={{
@@ -347,22 +377,30 @@ export default function LoginPage() {
             </div>
 
             {/* ── Form ── */}
-            <form className="anim-form" onSubmit={handleSubmit}
-              style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <form
+              className={`${styles.form} anim-form`}
+              onSubmit={handleSubmit}
+              style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}
+            >
 
               {/* Email */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                <label style={{
-                  fontFamily: 'Pretendard, sans-serif',
-                  fontWeight: 500,
-                  fontSize: '0.775rem',
-                  letterSpacing: '0.05em',
-                  color: '#8888AA',
-                }}>
+                <label
+                  className={styles.label}
+                  style={{
+                    fontFamily: 'Pretendard, sans-serif',
+                    fontWeight: 500,
+                    fontSize: '0.775rem',
+                    letterSpacing: '0.05em',
+                    color: '#8888AA',
+                  }}
+                >
                   이메일
                 </label>
                 <input
+                  className={styles.emailInput}
                   type="email"
+                  autoComplete="email"
                   placeholder="hello@seoulmate.kr"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
@@ -388,18 +426,23 @@ export default function LoginPage() {
 
               {/* Password */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                <label style={{
-                  fontFamily: 'Pretendard, sans-serif',
-                  fontWeight: 500,
-                  fontSize: '0.775rem',
-                  letterSpacing: '0.05em',
-                  color: '#8888AA',
-                }}>
+                <label
+                  className={styles.label}
+                  style={{
+                    fontFamily: 'Pretendard, sans-serif',
+                    fontWeight: 500,
+                    fontSize: '0.775rem',
+                    letterSpacing: '0.05em',
+                    color: '#8888AA',
+                  }}
+                >
                   비밀번호
                 </label>
                 <div style={{ position: 'relative' }}>
                   <input
+                    className={styles.pwInput}
                     type={showPw ? 'text' : 'password'}
+                    autoComplete="current-password"
                     placeholder="••••••••"
                     value={pw}
                     onChange={e => setPw(e.target.value)}
@@ -423,7 +466,7 @@ export default function LoginPage() {
                   />
                   <button
                     type="button"
-                    className="eye-btn"
+                    className={`${styles.eyeBtn} eye-btn`}
                     onClick={() => setShowPw(v => !v)}
                     aria-label={showPw ? '비밀번호 숨기기' : '비밀번호 보기'}
                     style={{
@@ -431,6 +474,7 @@ export default function LoginPage() {
                       transform: 'translateY(-50%)',
                       background: 'none', border: 'none', cursor: 'pointer',
                       display: 'flex', alignItems: 'center', padding: '4px',
+                      minHeight: '44px', minWidth: '44px', justifyContent: 'center',
                     }}
                   >
                     <EyeIcon open={showPw}/>
@@ -442,7 +486,7 @@ export default function LoginPage() {
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-2px' }}>
                 <a
                   href="#"
-                  className="forgot"
+                  className={`${styles.forgotLink} forgot`}
                   style={{
                     fontFamily: 'Pretendard, sans-serif',
                     fontWeight: 400,
@@ -459,7 +503,7 @@ export default function LoginPage() {
               {/* ── Login CTA ── */}
               <button
                 type="submit"
-                className="login-cta"
+                className={`${styles.loginCta} login-cta`}
                 style={{
                   width: '100%',
                   height: '52px',
@@ -506,7 +550,7 @@ export default function LoginPage() {
                 {/* Kakao */}
                 <button
                   type="button"
-                  className="kakao-btn"
+                  className={`${styles.kakaoBtn} kakao-btn`}
                   style={{
                     width: '100%', height: '52px',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
@@ -526,7 +570,7 @@ export default function LoginPage() {
                 {/* Google */}
                 <button
                   type="button"
-                  className="google-btn"
+                  className={`${styles.googleBtn} google-btn`}
                   style={{
                     width: '100%', height: '52px',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
@@ -545,10 +589,13 @@ export default function LoginPage() {
               </div>
 
               {/* Sign-up link */}
-              <div style={{
-                display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px',
-                paddingTop: '14px',
-              }}>
+              <div
+                className={styles.signupRow}
+                style={{
+                  display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px',
+                  paddingTop: '14px',
+                }}
+              >
                 <span style={{
                   fontFamily: 'Pretendard, sans-serif',
                   fontWeight: 400, fontSize: '0.875rem',
