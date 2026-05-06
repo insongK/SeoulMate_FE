@@ -36,6 +36,24 @@ function KakaoIcon() {
   )
 }
 
+function LogoMark() {
+  return (
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+      <defs>
+        <linearGradient id="lm-g" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FF6B6B"/>
+          <stop offset="50%" stopColor="#C850C0"/>
+          <stop offset="100%" stopColor="#4158D0"/>
+        </linearGradient>
+      </defs>
+      <path d="M17 3L2 14h4v17h22V14h4L17 3z" fill="url(#lm-g)" opacity="0.85"/>
+      <path d="M17 3L2 14h4v1L17 8.5 30 15v-1h4L17 3z" fill="white" opacity="0.18"/>
+      <rect x="11.5" y="19" width="11" height="12" rx="2" fill="white" opacity="0.12"/>
+      <rect x="14" y="21" width="6" height="10" rx="1.5" fill="url(#lm-g)" opacity="0.75"/>
+    </svg>
+  )
+}
+
 
 /* ── Data ───────────────────────────────────────────────────── */
 
@@ -287,12 +305,22 @@ export default function LoginPage() {
           <div style={{ width: '100%', maxWidth: '390px', position: 'relative' }}>
 
             {/* ── Logo ── */}
-            <div className="anim-logo" style={{ marginBottom: '44px' }}>
-              <img
-                src="/darkMain.png"
-                alt="SeoulMate"
-                style={{ height: '48px', width: 'auto', display: 'block' }}
-              />
+            <div className="anim-logo" style={{
+              display: 'flex', alignItems: 'center', gap: '10px',
+              marginBottom: '44px',
+            }}>
+              <LogoMark/>
+              <span style={{
+                fontFamily: 'Pretendard, sans-serif',
+                fontWeight: 800,
+                fontSize: '1.2rem',
+                background: 'linear-gradient(135deg, #FF6B6B, #C850C0)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>
+                SeoulMate
+              </span>
             </div>
 
             {/* ── Greeting ── */}
