@@ -1,17 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import styles from './login.module.css'
 
 /* ── Icons ─────────────────────────────────────────────────── */
 
-function EyeIcon({ open }: { open: boolean }) {
+function EyeIcon({ open, stroke }: { open: boolean; stroke: string }) {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
       <path d="M2 12C2 12 5 5 12 5C19 5 22 12 22 12C22 12 19 19 12 19C5 19 2 12 2 12Z"
-        stroke="#8888AA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      <circle cx="12" cy="12" r="3" stroke="#8888AA" strokeWidth="1.5"/>
-      {!open && <line x1="3" y1="3" x2="21" y2="21" stroke="#8888AA" strokeWidth="1.5" strokeLinecap="round"/>}
+        stroke={stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="12" cy="12" r="3" stroke={stroke} strokeWidth="1.5"/>
+      {!open && <line x1="3" y1="3" x2="21" y2="21" stroke={stroke} strokeWidth="1.5" strokeLinecap="round"/>}
     </svg>
   )
 }
@@ -37,6 +37,81 @@ function KakaoIcon() {
   )
 }
 
+function SunIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="4"/>
+      <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+    </svg>
+  )
+}
+
+function MoonIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+  )
+}
+
+/* ── Themes ─────────────────────────────────────────────────── */
+
+const DARK = {
+  wrapperBg:      '#0A0A0F',
+  bgImage:        "url('/seoul-bg.jpg')",
+  leftOverlay:    'linear-gradient(to right, rgba(10,10,15,.94) 0%, rgba(10,10,15,.55) 65%, rgba(10,10,15,.2) 100%)',
+  bottomGradient: 'linear-gradient(to top, rgba(10,10,15,.9) 0%, transparent 55%)',
+  rightPanelBg:   '#0A0A0F',
+  rightBorder:    '1px solid rgba(255,255,255,0.04)',
+  glow1:          'radial-gradient(circle, rgba(200,80,192,0.09) 0%, transparent 70%)',
+  glow2:          'radial-gradient(circle, rgba(255,107,107,0.07) 0%, transparent 70%)',
+  heading:        '#F0F0F5',
+  subtext:        '#8888AA',
+  label:          '#8888AA',
+  muted:          '#44445A',
+  inputBg:        'rgba(255,255,255,0.05)',
+  inputBgFocus:   'rgba(255,107,107,0.07)',
+  inputBorder:    'rgba(255,255,255,0.09)',
+  inputText:      '#F0F0F5',
+  dividerLine:    'rgba(255,255,255,0.07)',
+  googleBg:       'rgba(255,255,255,0.06)',
+  googleBorder:   'rgba(255,255,255,0.11)',
+  googleText:     '#F0F0F5',
+  googleHover:    'rgba(255,255,255,.1)',
+  eyeStroke:      '#8888AA',
+  toggleBg:       'rgba(255,255,255,0.08)',
+  toggleBorder:   'rgba(255,255,255,0.15)',
+  toggleColor:    'rgba(240,240,245,0.7)',
+}
+
+const LIGHT = {
+  wrapperBg:      '#F0F0F5',
+  bgImage:        "url('/seoul_bg-bright.png')",
+  leftOverlay:    'linear-gradient(to right, rgba(20,20,30,.72) 0%, rgba(20,20,30,.35) 65%, rgba(20,20,30,.08) 100%)',
+  bottomGradient: 'linear-gradient(to top, rgba(20,20,30,.65) 0%, transparent 55%)',
+  rightPanelBg:   '#FFFFFF',
+  rightBorder:    '1px solid rgba(0,0,0,0.07)',
+  glow1:          'radial-gradient(circle, rgba(200,80,192,0.06) 0%, transparent 70%)',
+  glow2:          'radial-gradient(circle, rgba(255,107,107,0.05) 0%, transparent 70%)',
+  heading:        '#1a1a1a',
+  subtext:        '#666666',
+  label:          '#888888',
+  muted:          '#BBBBBB',
+  inputBg:        '#F5F5F5',
+  inputBgFocus:   'rgba(255,107,107,0.05)',
+  inputBorder:    'rgba(0,0,0,0.13)',
+  inputText:      '#1a1a1a',
+  dividerLine:    'rgba(0,0,0,0.08)',
+  googleBg:       '#F1F3F4',
+  googleBorder:   'rgba(0,0,0,0.12)',
+  googleText:     '#3c4043',
+  googleHover:    'rgba(0,0,0,.05)',
+  eyeStroke:      '#AAAAAA',
+  toggleBg:       'rgba(0,0,0,0.06)',
+  toggleBorder:   'rgba(0,0,0,0.12)',
+  toggleColor:    'rgba(30,30,40,0.55)',
+}
+
 /* ── Data ───────────────────────────────────────────────────── */
 
 const FEATURE_BADGES = [
@@ -59,12 +134,31 @@ const PARTICLES = [
 /* ── Component ─────────────────────────────────────────────── */
 
 export default function LoginPage() {
-  const [showPw, setShowPw] = useState(false)
-  const [email, setEmail]   = useState('')
-  const [pw, setPw]         = useState('')
+  const [showPw, setShowPw]         = useState(false)
+  const [email, setEmail]           = useState('')
+  const [pw, setPw]                 = useState('')
   const [emailFocus, setEmailFocus] = useState(false)
   const [pwFocus, setPwFocus]       = useState(false)
+  const [isDark, setIsDark]         = useState(true)
 
+  useEffect(() => {
+    const stored = localStorage.getItem('seoulmate-theme')
+    if (stored) {
+      setIsDark(stored === 'dark')
+    } else {
+      setIsDark(!window.matchMedia('(prefers-color-scheme: light)').matches)
+    }
+  }, [])
+
+  const toggleTheme = () => {
+    setIsDark(v => {
+      const next = !v
+      localStorage.setItem('seoulmate-theme', next ? 'dark' : 'light')
+      return next
+    })
+  }
+
+  const t = isDark ? DARK : LIGHT
   const handleSubmit = (e: React.FormEvent) => e.preventDefault()
 
   return (
@@ -98,7 +192,7 @@ export default function LoginPage() {
         .kakao-btn:active { transform: translateY(0); }
         .kakao-btn { transition: all .35s cubic-bezier(.16,1,.3,1); }
 
-        .google-btn:hover  { background: rgba(255,255,255,.1) !important; transform: translateY(-1px); }
+        .google-btn:hover  { background: ${t.googleHover} !important; transform: translateY(-1px); }
         .google-btn:active { transform: translateY(0); }
         .google-btn { transition: all .35s cubic-bezier(.16,1,.3,1); }
 
@@ -114,17 +208,23 @@ export default function LoginPage() {
         .signup-link { transition: opacity .2s; }
         .signup-link:hover { opacity: .8; }
 
+        .theme-toggle { transition: all .3s cubic-bezier(.16,1,.3,1); }
+        .theme-toggle:hover { transform: scale(1.1); opacity: 1; }
+        .theme-toggle:active { transform: scale(0.95); }
+
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
       `}</style>
 
       {/* ── Root wrapper ── */}
       <div
         className={styles.wrapper}
+        data-theme={isDark ? 'dark' : 'light'}
         style={{
           minHeight: '100vh',
           display: 'flex',
-          background: '#0A0A0F',
-          overflowX: 'hidden', /* x-only so mobile can scroll vertically */
+          background: t.wrapperBg,
+          overflowX: 'hidden',
+          transition: 'background 0.4s ease',
         }}
       >
 
@@ -141,27 +241,30 @@ export default function LoginPage() {
             padding: '60px 72px',
           }}
         >
-          {/* Seoul night background */}
+          {/* Background image */}
           <div style={{
             position: 'absolute', inset: 0,
-            backgroundImage: `url('/seoul-bg.jpg')`,
+            backgroundImage: t.bgImage,
             backgroundSize: 'cover',
             backgroundPosition: 'center 40%',
             zIndex: 0,
+            transition: 'background-image 0s',
           }}/>
 
-          {/* Dark overlay — left-heavy for text legibility */}
+          {/* Directional overlay — keeps left content legible regardless of theme */}
           <div style={{
             position: 'absolute', inset: 0,
-            background: 'linear-gradient(to right, rgba(10,10,15,.94) 0%, rgba(10,10,15,.55) 65%, rgba(10,10,15,.2) 100%)',
+            background: t.leftOverlay,
             zIndex: 1,
+            transition: 'background 0.4s ease',
           }}/>
 
           {/* Bottom gradient */}
           <div style={{
             position: 'absolute', inset: 0,
-            background: 'linear-gradient(to top, rgba(10,10,15,.9) 0%, transparent 55%)',
+            background: t.bottomGradient,
             zIndex: 1,
+            transition: 'background 0.4s ease',
           }}/>
 
           {/* Noise grain */}
@@ -293,10 +396,11 @@ export default function LoginPage() {
             alignItems: 'center',
             justifyContent: 'center',
             padding: '48px 48px',
-            background: '#0A0A0F',
+            background: t.rightPanelBg,
             position: 'relative',
             zIndex: 10,
-            borderLeft: '1px solid rgba(255,255,255,0.04)',
+            borderLeft: t.rightBorder,
+            transition: 'background 0.4s ease, border-color 0.4s ease',
           }}
         >
           {/* Ambient glows (desktop only) */}
@@ -305,7 +409,7 @@ export default function LoginPage() {
             style={{
               position: 'absolute', top: '15%', right: '-100px',
               width: '320px', height: '320px', borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(200,80,192,0.09) 0%, transparent 70%)',
+              background: t.glow1,
               pointerEvents: 'none',
             }}
           />
@@ -314,10 +418,36 @@ export default function LoginPage() {
             style={{
               position: 'absolute', bottom: '18%', left: '-60px',
               width: '240px', height: '240px', borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(255,107,107,0.07) 0%, transparent 70%)',
+              background: t.glow2,
               pointerEvents: 'none',
             }}
           />
+
+          {/* Theme toggle button */}
+          <button
+            type="button"
+            className="theme-toggle"
+            onClick={toggleTheme}
+            aria-label={isDark ? '라이트 모드로 전환' : '다크 모드로 전환'}
+            style={{
+              position: 'absolute',
+              top: '24px',
+              right: '28px',
+              width: '38px',
+              height: '38px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: t.toggleBg,
+              border: `1px solid ${t.toggleBorder}`,
+              borderRadius: '9999px',
+              color: t.toggleColor,
+              cursor: 'pointer',
+              zIndex: 20,
+            }}
+          >
+            {isDark ? <SunIcon /> : <MoonIcon />}
+          </button>
 
           {/* Form container */}
           <div
@@ -359,8 +489,9 @@ export default function LoginPage() {
                   fontWeight: 700,
                   fontSize: '1.875rem',
                   lineHeight: 1.2,
-                  color: '#F0F0F5',
+                  color: t.heading,
                   marginBottom: '10px',
+                  transition: 'color 0.3s ease',
                 }}
               >
                 다시 만나서 반가워요 👋
@@ -370,7 +501,8 @@ export default function LoginPage() {
                 fontWeight: 400,
                 fontSize: '0.875rem',
                 lineHeight: 1.65,
-                color: '#8888AA',
+                color: t.subtext,
+                transition: 'color 0.3s ease',
               }}>
                 서울에서 가장 특별한 순간들이 기다리고 있어요
               </p>
@@ -392,7 +524,8 @@ export default function LoginPage() {
                     fontWeight: 500,
                     fontSize: '0.775rem',
                     letterSpacing: '0.05em',
-                    color: '#8888AA',
+                    color: t.label,
+                    transition: 'color 0.3s ease',
                   }}
                 >
                   이메일
@@ -410,13 +543,13 @@ export default function LoginPage() {
                     width: '100%',
                     height: '52px',
                     padding: '0 18px',
-                    background: emailFocus ? 'rgba(255,107,107,0.07)' : 'rgba(255,255,255,0.05)',
-                    border: emailFocus ? '1.5px solid #FF6B6B' : '1.5px solid rgba(255,255,255,0.09)',
+                    background: emailFocus ? t.inputBgFocus : t.inputBg,
+                    border: emailFocus ? '1.5px solid #FF6B6B' : `1.5px solid ${t.inputBorder}`,
                     borderRadius: '14px',
                     fontFamily: 'Pretendard, sans-serif',
                     fontWeight: 400,
                     fontSize: '0.95rem',
-                    color: '#F0F0F5',
+                    color: t.inputText,
                     outline: 'none',
                     boxShadow: emailFocus ? '0 0 0 4px rgba(255,107,107,0.13)' : 'none',
                     transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -433,7 +566,8 @@ export default function LoginPage() {
                     fontWeight: 500,
                     fontSize: '0.775rem',
                     letterSpacing: '0.05em',
-                    color: '#8888AA',
+                    color: t.label,
+                    transition: 'color 0.3s ease',
                   }}
                 >
                   비밀번호
@@ -452,13 +586,13 @@ export default function LoginPage() {
                       width: '100%',
                       height: '52px',
                       padding: '0 52px 0 18px',
-                      background: pwFocus ? 'rgba(255,107,107,0.07)' : 'rgba(255,255,255,0.05)',
-                      border: pwFocus ? '1.5px solid #FF6B6B' : '1.5px solid rgba(255,255,255,0.09)',
+                      background: pwFocus ? t.inputBgFocus : t.inputBg,
+                      border: pwFocus ? '1.5px solid #FF6B6B' : `1.5px solid ${t.inputBorder}`,
                       borderRadius: '14px',
                       fontFamily: 'Pretendard, sans-serif',
                       fontWeight: 400,
                       fontSize: '0.95rem',
-                      color: '#F0F0F5',
+                      color: t.inputText,
                       outline: 'none',
                       boxShadow: pwFocus ? '0 0 0 4px rgba(255,107,107,0.13)' : 'none',
                       transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -477,7 +611,7 @@ export default function LoginPage() {
                       minHeight: '44px', minWidth: '44px', justifyContent: 'center',
                     }}
                   >
-                    <EyeIcon open={showPw}/>
+                    <EyeIcon open={showPw} stroke={t.eyeStroke} />
                   </button>
                 </div>
               </div>
@@ -531,18 +665,19 @@ export default function LoginPage() {
                 display: 'flex', alignItems: 'center', gap: '14px',
                 margin: '2px 0',
               }}>
-                <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.07)' }}/>
+                <div style={{ flex: 1, height: '1px', background: t.dividerLine, transition: 'background 0.3s ease' }}/>
                 <span style={{
                   fontFamily: 'Pretendard, sans-serif',
                   fontWeight: 400,
                   fontSize: '0.72rem',
                   letterSpacing: '0.06em',
-                  color: '#44445A',
+                  color: t.muted,
                   whiteSpace: 'nowrap',
+                  transition: 'color 0.3s ease',
                 }}>
                   또는
                 </span>
-                <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.07)' }}/>
+                <div style={{ flex: 1, height: '1px', background: t.dividerLine, transition: 'background 0.3s ease' }}/>
               </div>
 
               {/* ── Social Buttons ── */}
@@ -574,13 +709,14 @@ export default function LoginPage() {
                   style={{
                     width: '100%', height: '52px',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '1.5px solid rgba(255,255,255,0.11)',
+                    background: t.googleBg,
+                    border: `1.5px solid ${t.googleBorder}`,
                     borderRadius: '14px',
                     fontFamily: 'Pretendard, sans-serif',
                     fontWeight: 500, fontSize: '0.95rem',
-                    color: '#F0F0F5',
+                    color: t.googleText,
                     cursor: 'pointer',
+                    transition: 'color 0.3s ease',
                   }}
                 >
                   <GoogleIcon/>
@@ -599,7 +735,8 @@ export default function LoginPage() {
                 <span style={{
                   fontFamily: 'Pretendard, sans-serif',
                   fontWeight: 400, fontSize: '0.875rem',
-                  color: '#8888AA',
+                  color: t.subtext,
+                  transition: 'color 0.3s ease',
                 }}>
                   계정이 없으신가요?
                 </span>

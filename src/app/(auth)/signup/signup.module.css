@@ -1,7 +1,6 @@
 /* ═══════════════════════════════════════════════
    Mobile-first responsive overrides
-   Desktop layout (≥768px) is handled by inline styles in page.tsx.
-   All rules here are mobile-only unless noted otherwise.
+   Desktop layout (≥768px) handled by inline styles.
    ═══════════════════════════════════════════════ */
 
 @media (max-width: 767px) {
@@ -27,12 +26,11 @@
     z-index: 0 !important;
   }
 
-  /* Hide brand text (shown inside the form panel) */
+  /* Hide brand block and grid on mobile */
   .brandBlock {
     display: none !important;
   }
 
-  /* Hide decorative grid SVG — prevents horizontal overflow */
   .mapGrid {
     display: none !important;
   }
@@ -45,110 +43,35 @@
     width: 100% !important;
     min-height: 100vh !important;
     background: transparent !important;
-    border-left: none !important;
     padding: 24px 16px !important;
-    padding-bottom: calc(32px + env(safe-area-inset-bottom)) !important;
-    /* keep align-items: center from inline style — centers the card */
-  }
-
-  /* Hide desktop ambient glow blobs (irrelevant over bg image) */
-  .ambientGlow {
-    display: none !important;
+    padding-bottom: calc(40px + env(safe-area-inset-bottom)) !important;
+    overflow-y: auto !important;
   }
 
   /* ── 4. Form container → glassmorphism card ── */
   .formContainer {
     max-width: 100% !important;
     width: 100% !important;
-    background: rgba(10, 10, 15, 0.88) !important;
+    background: rgba(17, 17, 17, 0.91) !important;
     backdrop-filter: blur(28px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.09) !important;
+    border: 1px solid rgba(255, 255, 255, 0.07) !important;
     border-radius: 20px !important;
     padding: 28px 20px !important;
     box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.55),
-      0 2px 8px rgba(0, 0, 0, 0.3) !important;
+      0 8px 32px rgba(0, 0, 0, 0.6),
+      0 2px 8px rgba(0, 0, 0, 0.35) !important;
   }
 
-  /* ── 5. Logo ── */
-  .logoArea {
-    margin-bottom: 28px !important;
-  }
-
-  .logoText {
-    font-size: 1.15rem !important;
-  }
-
-  /* ── 6. Greeting ── */
-  .greetingBlock {
-    margin-bottom: 28px !important;
-  }
-
-  .greetingTitle {
-    font-size: clamp(1.5rem, 5vw, 1.875rem) !important;
-  }
-
-  /* ── 7. Form ── */
-  .form {
-    gap: 16px !important;
-  }
-
-  /* ── 8. Labels ── */
-  .label {
-    font-size: 0.85rem !important;
-  }
-
-  /* ── 9. Inputs — 16px prevents iOS auto-zoom on focus ── */
-  .emailInput {
+  /* ── 5. Inputs — 16px prevents iOS auto-zoom on focus ── */
+  .input {
     font-size: 16px !important;
     min-height: 52px !important;
-  }
-
-  .pwInput {
-    font-size: 16px !important;
-    min-height: 52px !important;
-  }
-
-  /* ── 10. Eye toggle — larger tap target ── */
-  .eyeBtn {
-    padding: 12px !important;
-    right: 6px !important;
-  }
-
-  /* ── 11. Forgot password — min 44px touch target (Apple HIG) ── */
-  .forgotLink {
-    min-height: 44px !important;
-    display: flex !important;
-    align-items: center !important;
-  }
-
-  /* ── 12. Buttons — disable double-tap delay + enforce height ── */
-  .loginCta {
-    touch-action: manipulation;
-    min-height: 52px !important;
-  }
-
-  .kakaoBtn {
-    touch-action: manipulation;
-    min-height: 52px !important;
-  }
-
-  .googleBtn {
-    touch-action: manipulation;
-    min-height: 52px !important;
-  }
-
-  /* ── 13. Sign-up row — extra bottom clearance for thumbs ── */
-  .signupRow {
-    padding-top: 20px !important;
-    padding-bottom: 4px !important;
   }
 }
 
 /* ═══════════════════════════════════════════════
-   Light-mode overrides (mobile glass card)
-   wrapper has data-theme="light" in light mode
+   Light-mode override (mobile glass card)
    ═══════════════════════════════════════════════ */
 @media (max-width: 767px) {
   .wrapper[data-theme="light"] .formContainer {
@@ -161,12 +84,10 @@
 }
 
 /* ═══════════════════════════════════════════════
-   Reduced-motion: disable all entrance animations
+   Reduced-motion
    ═══════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
-  .logoArea,
-  .greetingBlock,
-  .form {
+  .formContainer {
     animation: none !important;
   }
 }
