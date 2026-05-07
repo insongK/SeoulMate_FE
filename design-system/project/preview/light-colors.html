@@ -1,0 +1,32 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type_light.css">
+<style>
+body{margin:0;background:var(--bg);font-family:var(--font-sans);color:var(--fg)}
+.card{width:700px;padding:28px;display:flex;flex-direction:column;gap:14px;box-sizing:border-box}
+.row{display:flex;gap:14px;flex-wrap:wrap}
+.sw{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:6px}
+.chip{height:64px;border-radius:12px;border:1px solid var(--border)}
+.name{font-size:12px;font-weight:600}
+.meta{font-family:var(--font-mono);font-size:11px;color:var(--fg-2)}
+</style></head>
+<body>
+<div class="card">
+  <div class="row">
+    <div class="sw"><div class="chip" style="background:#FFF9F2"></div><div class="name">Background</div><div class="meta">--bg · #FFF9F2</div></div>
+    <div class="sw"><div class="chip" style="background:#FFFFFF"></div><div class="name">Surface</div><div class="meta">--surface · #FFFFFF</div></div>
+    <div class="sw"><div class="chip" style="background:#FBF1E4"></div><div class="name">Surface 2</div><div class="meta">--surface-2 · #FBF1E4</div></div>
+    <div class="sw"><div class="chip" style="background:#F2E4D0"></div><div class="name">Surface 3</div><div class="meta">--surface-3 · #F2E4D0</div></div>
+  </div>
+  <div class="row">
+    <div class="sw"><div class="chip" style="background:#F5A623;border-color:transparent;box-shadow:var(--glow-amber)"></div><div class="name">Morning Amber</div><div class="meta">--primary · #F5A623</div></div>
+    <div class="sw"><div class="chip" style="background:#E8547A;border-color:transparent;box-shadow:var(--glow-pink)"></div><div class="name">Blush Pink</div><div class="meta">--accent · #E8547A</div></div>
+    <div class="sw"><div class="chip" style="background:linear-gradient(135deg,#FFB347 0%,#F5734B 50%,#C8442B 100%);border-color:transparent"></div><div class="name">Autumn</div><div class="meta">--grad-autumn</div></div>
+  </div>
+  <div class="row">
+    <div class="sw"><div class="chip" style="background:#1F1A14"></div><div class="name">Text</div><div class="meta">--fg · #1F1A14</div></div>
+    <div class="sw"><div class="chip" style="background:#6B6258"></div><div class="name">Text 2</div><div class="meta">--fg-2 · #6B6258</div></div>
+    <div class="sw"><div class="chip" style="background:#9A8F82"></div><div class="name">Text 3</div><div class="meta">--fg-3 · #9A8F82</div></div>
+    <div class="sw"><div class="chip" style="background:#C9BFB2"></div><div class="name">Text 4</div><div class="meta">--fg-4 · #C9BFB2</div></div>
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,115 @@
+/* ════════════════════════════════════════════════════════════
+   SeoulMate — Light Mode (Autumn Seoul)
+   서울의 가을 단풍 무드 + 모닝 앰버 포인트
+   ════════════════════════════════════════════════════════════ */
+
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css');
+
+:root {
+  /* ── Brand color (unchanged across modes) ────────────── */
+  --primary:        #F5A623;
+  --primary-soft:   #FFC56B;
+  --primary-deep:   #C8830F;
+  --accent:         #E8547A;
+  --accent-soft:    #F386A2;
+  --accent-deep:    #B73B5E;
+
+  /* ── Surfaces — warm cream → white ───────────────────── */
+  --bg:             #FFF9F2;  /* warm paper / morning light */
+  --bg-elevated:    #FFFFFF;
+  --surface:        #FFFFFF;  /* card/sheet base */
+  --surface-2:      #FBF1E4;  /* hovered / subtle warm */
+  --surface-3:      #F2E4D0;  /* press/active */
+  --overlay:        rgba(255, 249, 242, 0.78);
+  --scrim:          rgba(40, 24, 12, 0.45);  /* warm-toned scrim, not pure black */
+
+  /* ── Text — warm charcoal, never pure black ──────────── */
+  --fg:             #1F1A14;  /* primary */
+  --fg-2:           #6B6258;  /* secondary / meta */
+  --fg-3:           #9A8F82;  /* placeholder, disabled */
+  --fg-4:           #C9BFB2;  /* lowest-priority */
+  --fg-on-primary:  #1F1A14;  /* text on amber fill (still dark) */
+
+  /* ── Borders & dividers — warm taupe at low alpha ────── */
+  --border:         rgba(31, 26, 20, 0.08);
+  --border-strong:  rgba(31, 26, 20, 0.16);
+  --border-amber:   rgba(245, 166, 35, 0.45);
+
+  /* ── Semantic ────────────────────────────────────────── */
+  --success:        #2EA86B;
+  --warning:        #F5A623;
+  --danger:         #E8547A;
+  --info:           #3B86D9;
+  --kakao:          #FEE500;
+
+  /* ── Brand gradients ─────────────────────────────────── */
+  --grad-amber:     linear-gradient(135deg, #F5A623 0%, #E8547A 100%);
+  --grad-sunrise:   linear-gradient(135deg, #FFC56B 0%, #F5A623 45%, #E8547A 100%);
+  --grad-autumn:    linear-gradient(135deg, #FFB347 0%, #F5734B 50%, #C8442B 100%); /* foliage tones */
+  --grad-paper:     linear-gradient(180deg, #FFF9F2 0%, #FBF1E4 100%);
+  --grad-skyline:   linear-gradient(0deg, rgba(31, 26, 20, 0.55) 0%, rgba(31, 26, 20, 0) 55%);
+
+  /* ── Glow & shadow — softer, warm-tinted ─────────────── */
+  --glow-amber:     0 0 24px rgba(245, 166, 35, 0.30), 0 0 60px rgba(245, 166, 35, 0.10);
+  --glow-pink:      0 0 24px rgba(232, 84, 122, 0.25), 0 0 60px rgba(232, 84, 122, 0.10);
+  --shadow-card:    0 8px 24px rgba(180, 120, 60, 0.08), 0 2px 6px rgba(180, 120, 60, 0.06);
+  --shadow-sheet:   0 -12px 40px rgba(180, 120, 60, 0.12);
+  --shadow-pressed: inset 0 1px 2px rgba(31, 26, 20, 0.10);
+
+  /* ── Radius scale ────────────────────────────────────── */
+  --radius-xs: 6px;  --radius-sm: 10px; --radius-md: 14px;
+  --radius-lg: 20px; --radius-xl: 28px; --radius-pill: 9999px;
+
+  /* ── Spacing ─────────────────────────────────────────── */
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
+  --space-5:20px; --space-6:24px; --space-8:32px; --space-10:40px;
+  --space-12:48px; --space-16:64px;
+
+  /* ── Layout ──────────────────────────────────────────── */
+  --content-mobile: 430px;
+  --content-tablet: 768px;
+  --content-desktop: 1280px;
+  --tab-bar-h: 72px;
+  --top-nav-h: 56px;
+
+  /* ── Motion ──────────────────────────────────────────── */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --dur-fast: 160ms; --dur-base: 240ms; --dur-slow: 360ms;
+
+  /* ── Type ────────────────────────────────────────────── */
+  --font-sans: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont,
+               'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+
+  --w-regular:400; --w-medium:500; --w-semibold:600; --w-bold:700; --w-extrabold:800; --w-black:900;
+
+  --t-display:48px; --t-h1:32px; --t-h2:24px; --t-h3:20px; --t-h4:18px;
+  --t-body:16px; --t-body-sm:14px; --t-caption:13px; --t-micro:11px;
+
+  --lh-tight:1.15; --lh-snug:1.3; --lh-normal:1.5; --lh-relaxed:1.7;
+  --ls-tight:-0.02em; --ls-snug:-0.01em; --ls-normal:0; --ls-wide:0.04em; --ls-wider:0.10em;
+}
+
+html, body {
+  font-family: var(--font-sans);
+  font-size: var(--t-body);
+  line-height: var(--lh-normal);
+  color: var(--fg);
+  background-color: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.t-display { font-size:var(--t-display); font-weight:var(--w-black); line-height:var(--lh-tight); letter-spacing:var(--ls-tight); }
+.t-h1 { font-size:var(--t-h1); font-weight:var(--w-bold); line-height:var(--lh-tight); letter-spacing:var(--ls-snug); }
+.t-h2 { font-size:var(--t-h2); font-weight:var(--w-bold); line-height:var(--lh-snug); letter-spacing:var(--ls-snug); }
+.t-h3 { font-size:var(--t-h3); font-weight:var(--w-semibold); line-height:var(--lh-snug); }
+.t-h4 { font-size:var(--t-h4); font-weight:var(--w-semibold); line-height:var(--lh-snug); }
+.t-body { font-size:var(--t-body); line-height:var(--lh-normal); }
+.t-body-sm { font-size:var(--t-body-sm); line-height:var(--lh-normal); color:var(--fg-2); }
+.t-caption { font-size:var(--t-caption); line-height:var(--lh-snug); color:var(--fg-2); }
+.t-micro { font-size:var(--t-micro); font-weight:var(--w-medium); line-height:1; letter-spacing:var(--ls-wider); text-transform:uppercase; color:var(--fg-2); }
+.t-amber { background:var(--grad-amber); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.t-mono { font-family:var(--font-mono); font-feature-settings:'tnum' 1, 'zero' 1; }
