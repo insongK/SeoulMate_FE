@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { VIBES } from '@/constants/vibe'
 import { REGIONS, QUICK_REGIONS } from '@/constants/region'
 import { PRESETS, type Preset } from '@/constants/preset'
@@ -107,14 +108,6 @@ interface FormState {
   purpose: string
 }
 
-interface SearchRequest {
-  vibes: string[]
-  region: string
-  budget: number
-  duration: string
-  purpose?: string
-  query?: string
-}
 
 const DURATIONS = ['1시간', '2시간', '3시간', '4시간 이상']
 const DURATION_API_MAP: Record<string, string> = {
@@ -139,6 +132,7 @@ function formatBudget(v: number) {
    Main Page
    ══════════════════════════════════════════════════════════════ */
 export default function HomePage() {
+  const router = useRouter()
 
   /* ── Theme (light mode default) ─────────────────────────── */
   const [isDark, setIsDark] = useState(false)
@@ -196,28 +190,17 @@ export default function HomePage() {
     // Future: navigate to /search?q=heroSearch
   }
 
-  /* ── Form submit → API ───────────────────────────────────── */
-  const handleSubmit = async () => {
+  /* ── Form submit → /result ───────────────────────────────── */
+  const handleSubmit = () => {
     if (!canSubmit) return
-    const payload: SearchRequest = {
-      vibes: form.vibes,
-      region: form.region,
-      budget: form.budget,
-      duration: DURATION_API_MAP[form.duration] ?? form.duration,
-      purpose: form.purpose || undefined,
-      query: heroSearch || undefined,
-    }
-    try {
-      const res = await fetch('/api/courses/search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-      // TODO: navigate to results page with res data
-      console.log('search payload', payload, res.status)
-    } catch (err) {
-      console.error(err)
-    }
+    const params = new URLSearchParams()
+    params.set('vibes',    form.vibes.join(','))
+    params.set('region',   form.region)
+    params.set('budget',   String(form.budget))
+    params.set('duration', DURATION_API_MAP[form.duration] ?? form.duration)
+    if (form.purpose)  params.set('purpose', form.purpose)
+    if (heroSearch)    params.set('query',   heroSearch)
+    router.push(`/result?${params.toString()}`)
   }
 
   /* ── Preset click ────────────────────────────────────────── */
