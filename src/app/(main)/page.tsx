@@ -441,8 +441,17 @@ export default function HomePage() {
         }
         @media (max-width: 520px) {
           .hero-grid { min-height: auto !important; }
-          .preset-grid { grid-template-columns: 1fr !important; }
+          .preset-grid { grid-template-columns: repeat(2,1fr) !important; }
         }
+
+        /* Vibe chips — horizontal scroll, no wrap */
+        .vibe-scroll {
+          display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 5px;
+          scrollbar-width: none; -ms-overflow-style: none;
+          padding-bottom: 2px;
+        }
+        .vibe-scroll::-webkit-scrollbar { display: none; }
+        .vibe-scroll button { flex-shrink: 0; }
         @media (prefers-reduced-motion: reduce) {
           .h-e1,.h-e2,.h-e3,.h-e4,.h-e5 { animation: none !important; }
           .preset-card,.chip-btn,.dur-card,.cta-btn,.cta-hero { transition: none !important; }
@@ -681,8 +690,6 @@ export default function HomePage() {
                 borderRadius: 20,
                 border: `1px solid ${isDark ? 'rgba(255,255,255,.10)' : 'rgba(232,101,26,.18)'}`,
                 padding: '20px 20px 16px',
-                maxHeight: 'calc(100vh - 180px)',
-                overflowY: 'auto',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 16,
@@ -697,7 +704,7 @@ export default function HomePage() {
                 {/* STEP 1 · 분위기 */}
                 <div>
                   <div style={{ fontSize: 10, letterSpacing: '.10em', textTransform: 'uppercase', color: 'var(--primary)', fontWeight: 600, marginBottom: 6 }}>분위기 · 복수선택</div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                  <div className="vibe-scroll">
                     {VIBES.map(v => {
                       const on = form.vibes.includes(v)
                       return (
@@ -708,6 +715,7 @@ export default function HomePage() {
                           color: on ? 'var(--fg-on-primary)' : 'var(--fg-2)',
                           fontFamily: 'inherit', fontWeight: on ? 700 : 500,
                           fontSize: 12, cursor: 'pointer', boxShadow: on ? '0 2px 8px rgba(232,101,26,.3)' : 'none',
+                          whiteSpace: 'nowrap',
                         }}>{v}</button>
                       )
                     })}
@@ -799,23 +807,45 @@ export default function HomePage() {
                 </div>
 
                 {/* STEP 4 · 시간 */}
-                <div>
-                  <div style={{ fontSize: 10, letterSpacing: '.10em', textTransform: 'uppercase', color: 'var(--primary)', fontWeight: 600, marginBottom: 6 }}>소요 시간</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-                    {DURATIONS.map(d => {
-                      const on = form.duration === d
-                      return (
-                        <button key={d} className={`dur-card${on ? ' dur-on' : ''}`} onClick={() => setForm(f => ({ ...f, duration: d }))} style={{
-                          padding: '9px 8px', borderRadius: 10,
-                          border: on ? '1.5px solid var(--primary)' : '1.5px solid var(--border)',
-                          background: on ? 'var(--grad-amber)' : (isDark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.04)'),
-                          color: on ? 'var(--fg-on-primary)' : 'var(--fg-2)',
-                          fontFamily: 'inherit', fontWeight: on ? 700 : 500, fontSize: 12, textAlign: 'center', cursor: 'pointer',
-                        }}>{d}</button>
-                      )
-                    })}
-                  </div>
-                </div>
+                {(() => {
+                  const durIdx = form.duration ? DURATIONS.indexOf(form.duration) : -1
+                  const durPct = durIdx >= 0 ? (durIdx / (DURATIONS.length - 1)) * 100 : 0
+                  return (
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <div style={{ fontSize: 10, letterSpacing: '.10em', textTransform: 'uppercase', color: 'var(--primary)', fontWeight: 600 }}>소요 시간</div>
+                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--primary)', fontWeight: 700 }}>
+                          {form.duration || '—'}
+                        </div>
+                      </div>
+                      <div style={{ position: 'relative', height: 20 }}>
+                        <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', transform: 'translateY(-50%)', height: 5, background: 'var(--surface-3)', borderRadius: 9999 }}>
+                          {durIdx >= 0 && (
+                            <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${durPct}%`, background: 'var(--primary)', borderRadius: 9999, transition: 'width .12s' }}/>
+                          )}
+                        </div>
+                        <input
+                          type="range" min={0} max={DURATIONS.length - 1} step={1}
+                          value={durIdx >= 0 ? durIdx : 0}
+                          onChange={e => setForm(f => ({ ...f, duration: DURATIONS[Number(e.target.value)] }))}
+                          onMouseDown={() => { if (durIdx < 0) setForm(f => ({ ...f, duration: DURATIONS[0] })) }}
+                          style={{ position: 'absolute', inset: 0, width: '100%', opacity: 0, cursor: 'pointer', margin: 0, zIndex: 2, height: '100%' }}
+                        />
+                        {durIdx >= 0 && (
+                          <div style={{
+                            position: 'absolute', left: `calc(${durPct}% - 9px)`, top: '50%', transform: 'translateY(-50%)',
+                            width: 18, height: 18, borderRadius: '50%', background: '#fff',
+                            border: '2px solid var(--primary)', boxShadow: '0 2px 6px rgba(232,101,26,.4)',
+                            pointerEvents: 'none', zIndex: 1, transition: 'left .12s',
+                          }}/>
+                        )}
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 10, color: 'var(--fg-3)' }}>
+                        {DURATIONS.map(d => <span key={d}>{d}</span>)}
+                      </div>
+                    </div>
+                  )
+                })()}
 
                 {/* STEP 5 · 목적 */}
                 <div>
