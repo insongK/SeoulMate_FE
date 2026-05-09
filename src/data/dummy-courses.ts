@@ -11,7 +11,8 @@ export const DUMMY_COURSES: Course[] = [
       { id: 'plc_003', name: '카페 어반플랜트',   lat: 37.5558, lng: 126.9218, order: 3, category: '카페', estimatedTime: 40 },
     ],
     totalDuration: '3시간', durationMinutes: 180,
-    totalBudget: 42000, vibes: ['감성', '힙한'], region: '홍대',
+    totalBudget: 42000, totalCost: 42000, userBudget: 50000,
+    vibes: ['감성', '힙한'], region: '홍대',
     transportation: 'walk', isSaved: false, congestion: 'mid',
   },
   {
@@ -24,7 +25,8 @@ export const DUMMY_COURSES: Course[] = [
       { id: 'plc_006', name: '남산 케이블카',  lat: 37.5512, lng: 126.9882, order: 3, category: '야외',  estimatedTime: 60 },
     ],
     totalDuration: '4시간 30분', durationMinutes: 270,
-    totalBudget: 82000, vibes: ['로맨틱', '야경'], region: '한강',
+    totalBudget: 82000, totalCost: 82000, userBudget: 100000,
+    vibes: ['로맨틱', '야경'], region: '한강',
     transportation: 'transit', isSaved: true, congestion: 'low',
   },
   {
@@ -38,7 +40,8 @@ export const DUMMY_COURSES: Course[] = [
       { id: 'plc_010', name: '대림창고',     lat: 37.5435, lng: 127.0567, order: 4, category: '카페', estimatedTime: 40 },
     ],
     totalDuration: '3시간 30분', durationMinutes: 210,
-    totalBudget: 48000, vibes: ['힙한', '감성'], region: '성수',
+    totalBudget: 48000, totalCost: 48000, userBudget: 60000,
+    vibes: ['힙한', '감성'], region: '성수',
     transportation: 'walk', isSaved: false, congestion: 'high',
   },
   {
@@ -51,7 +54,8 @@ export const DUMMY_COURSES: Course[] = [
       { id: 'plc_013', name: '국립민속박물관',  lat: 37.5810, lng: 126.9785, order: 3, category: '전시', estimatedTime: 60 },
     ],
     totalDuration: '3시간', durationMinutes: 180,
-    totalBudget: 28000, vibes: ['고즈넉한', '조용한'], region: '북촌',
+    totalBudget: 28000, totalCost: 28000, userBudget: 40000,
+    vibes: ['고즈넉한', '조용한'], region: '북촌',
     transportation: 'walk', isSaved: false, congestion: 'low',
   },
   {
@@ -64,7 +68,8 @@ export const DUMMY_COURSES: Course[] = [
       { id: 'plc_016', name: '갤러리아 백화점',       lat: 37.5271, lng: 127.0398, order: 3, category: '쇼핑', estimatedTime: 60 },
     ],
     totalDuration: '4시간', durationMinutes: 240,
-    totalBudget: 150000, vibes: ['럭셔리', '분위기'], region: '강남',
+    totalBudget: 150000, totalCost: 150000, userBudget: 200000,
+    vibes: ['럭셔리', '분위기'], region: '강남',
     transportation: 'transit', isSaved: false, congestion: 'mid',
   },
   {
@@ -77,7 +82,8 @@ export const DUMMY_COURSES: Course[] = [
       { id: 'plc_019', name: '해방촌 야시장',      lat: 37.5367, lng: 126.9855, order: 3, category: '야외', estimatedTime: 60 },
     ],
     totalDuration: '3시간', durationMinutes: 180,
-    totalBudget: 65000, vibes: ['맛집', '활동적'], region: '이태원',
+    totalBudget: 65000, totalCost: 65000, userBudget: 80000,
+    vibes: ['맛집', '활동적'], region: '이태원',
     transportation: 'mixed', isSaved: true, congestion: 'mid',
   },
   {
@@ -90,7 +96,8 @@ export const DUMMY_COURSES: Course[] = [
       { id: 'plc_022', name: '카페 연남방앗간',   lat: 37.5608, lng: 126.9270, order: 3, category: '카페', estimatedTime: 45 },
     ],
     totalDuration: '2시간 30분', durationMinutes: 150,
-    totalBudget: 38000, vibes: ['산책', '감성'], region: '연남',
+    totalBudget: 38000, totalCost: 38000, userBudget: 50000,
+    vibes: ['산책', '감성'], region: '연남',
     transportation: 'walk', isSaved: false, congestion: 'low',
   },
   {
@@ -103,7 +110,8 @@ export const DUMMY_COURSES: Course[] = [
       { id: 'plc_025', name: '롯데월드몰',       lat: 37.5122, lng: 127.1020, order: 3, category: '쇼핑', estimatedTime: 90 },
     ],
     totalDuration: '3시간 30분', durationMinutes: 210,
-    totalBudget: 55000, vibes: ['활동적', '야경'], region: '잠실',
+    totalBudget: 55000, totalCost: 55000, userBudget: 70000,
+    vibes: ['활동적', '야경'], region: '잠실',
     transportation: 'transit', isSaved: false, congestion: 'high',
   },
 ]

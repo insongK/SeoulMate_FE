@@ -4,15 +4,17 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { loadKakaoMaps } from '@/lib/kakao'
 import { getMidpoint, totalDistance, walkingMinutes } from '@/utils/map'
-import type { Course, Place, Congestion } from '@/types/course.types'
+import type { Course, Congestion } from '@/types/course.types'
 
 /* ── Mock data ─────────────────────────────────────────────────── */
 function mockCourse(id: string): Course {
   return {
     id, title: '한강 야경 로맨틱 데이트',
     description: '해질녘 한강에서 시작해 성수·한남을 거쳐 반포 분수로 마무리하는 4시간 감성 코스',
-    totalDuration: 240, totalCost: 92000, userBudget: 100000,
-    vibes: ['로맨틱', '야경'], region: '한강', isSaved: false,
+    totalDuration: '4시간', durationMinutes: 240,
+    totalCost: 92000, totalBudget: 92000, userBudget: 100000,
+    vibes: ['로맨틱', '야경'], region: '한강',
+    transportation: 'transit', congestion: 'mid', isSaved: false,
     places: [
       { id: 'p1', order: 1, name: '뚝섬 한강공원', category: '공원',
         description: '넓은 잔디밭과 한강 뷰가 아름다운 공원',
@@ -292,9 +294,7 @@ export default function ResultDetailPage() {
   /* ── 404 handled by mock (would redirect in real impl) ─────── */
   if (!course) return null
 
-  const coords   = course.places.map(p => ({ lat: p.lat, lng: p.lng }))
   const overBudget = course.totalCost > course.userBudget
-  const budgetPct  = Math.min((course.totalCost / course.userBudget) * 100, 100)
 
   return (
     <>
@@ -448,7 +448,7 @@ export default function ResultDetailPage() {
               }}>
                 {[
                   ['장소', `${course.places.length}곳`],
-                  ['소요시간', fmtDur(course.totalDuration)],
+                  ['소요시간', fmtDur(course.durationMinutes)],
                   ['총비용', fmtKRW(course.totalCost)],
                 ].map(([label, value], i) => (
                   <div key={label} style={{
@@ -529,7 +529,7 @@ export default function ResultDetailPage() {
                   const isActive   = i === activeStop
                   const isExpanded = expanded === place.id
                   const isLast     = i === course.places.length - 1
-                  const [cLabel, cColor] = CONGESTION[place.congestion]
+                  const [cLabel, cColor] = CONGESTION[place.congestion ?? 'medium']
 
                   return (
                     <div key={place.id} style={{ display: 'flex', gap: 0 }}>
@@ -602,10 +602,10 @@ export default function ResultDetailPage() {
                             <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
                               <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                             </svg>
-                            {fmtDur(place.duration)}
+                            {fmtDur(place.duration ?? 0)}
                           </span>
                           <span style={{ fontSize: 12, color: 'var(--fg-3)', fontFamily: 'var(--font-mono)' }}>
-                            {fmtKRW(place.cost)}
+                            {fmtKRW(place.cost ?? 0)}
                           </span>
                           <span style={{
                             padding: '2px 7px', borderRadius: 'var(--radius-pill)',

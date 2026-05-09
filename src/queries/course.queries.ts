@@ -71,6 +71,8 @@ function mapApiCourse(raw: ApiCourse): Course {
     totalDuration:   formatDuration(raw.duration),
     durationMinutes: raw.duration,
     totalBudget:     raw.totalCost,
+    totalCost:       raw.totalCost,
+    userBudget:      raw.totalCost,
     vibes:           [],
     region:          '',
     transportation:  'mixed',

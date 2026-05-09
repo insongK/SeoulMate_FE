@@ -8,14 +8,15 @@ export interface Place {
   id: string
   order: number
   name: string
-  category: string
-  description: string
-  reason: string
-  duration: number
-  cost: number
-  congestion: Congestion
+  category?: string
   lat: number
   lng: number
+  description?: string
+  reason?: string
+  duration?: number
+  estimatedTime?: number
+  cost?: number
+  congestion?: Congestion
   imageUrl?: string
 }
 
@@ -23,30 +24,18 @@ export interface Course {
   id: string
   title: string
   description: string
-  places: CoursePlace[]
+  places: Place[]
   totalDuration: string   // formatted: "4시간", "2시간 30분"
   durationMinutes: number // raw minutes from API
-  /*중복 부분 */
   totalBudget: number     // mapped from API totalCost
   totalCost: number
   userBudget: number
-  /* 중복 부분 */
   vibes: string[]
   region: string
   transportation: TransportType
   isSaved: boolean
   thumbnail?: string
   congestion: CongestionLevel
-}
-
-export interface CoursePlace {
-  id: string
-  name: string
-  lat: number
-  lng: number
-  order: number
-  category?: string
-  estimatedTime?: number
 }
 
 export interface FilterState {

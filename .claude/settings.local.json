@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(mkdir -p \\\\ *)",
-      "Bash(cp -r /tmp/design_extract/seoulmate-design-system /mnt/c/Users/SSAFY/Desktop/SeoulMate_FE/design-system && echo \"done\")"
+      "Bash(cp -r /tmp/design_extract/seoulmate-design-system /mnt/c/Users/SSAFY/Desktop/SeoulMate_FE/design-system && echo \"done\")",
+      "Bash(pnpm build *)"
     ],
     "additionalDirectories": [
       "/Users/gim-insong/Desktop/SeoulMate_FE/public/fonts"

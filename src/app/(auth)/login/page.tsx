@@ -1,7 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import styles from './login.module.css'
+import { login, loginWithKakao, loginWithGoogle, saveTokens } from '@/lib/auth'
+import { useAuthStore } from '@/stores/auth.store'
 
 /* ── Icons ─────────────────────────────────────────────────── */
 
@@ -134,12 +137,17 @@ const PARTICLES = [
 /* ── Component ─────────────────────────────────────────────── */
 
 export default function LoginPage() {
+  const router   = useRouter()
+  const setUser  = useAuthStore(s => s.setUser)
+
   const [showPw, setShowPw]         = useState(false)
   const [email, setEmail]           = useState('')
   const [pw, setPw]                 = useState('')
   const [emailFocus, setEmailFocus] = useState(false)
   const [pwFocus, setPwFocus]       = useState(false)
   const [isDark, setIsDark]         = useState(true)
+  const [loading, setLoading]       = useState(false)
+  const [error, setError]           = useState<string | null>(null)
 
   useEffect(() => {
     const stored = localStorage.getItem('seoulmate-theme')
@@ -159,7 +167,23 @@ export default function LoginPage() {
   }
 
   const t = isDark ? DARK : LIGHT
-  const handleSubmit = (e: React.FormEvent) => e.preventDefault()
+
+  const handleSubmit = async (e: React.SyntheticEvent) => {
+    e.preventDefault()
+    if (!email || !pw || loading) return
+    setLoading(true)
+    setError(null)
+    try {
+      const data = await login(email, pw)
+      saveTokens(data.accessToken, data.refreshToken)
+      setUser(data.user)
+      router.replace('/')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '로그인에 실패했어요.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <>
@@ -634,9 +658,20 @@ export default function LoginPage() {
                 </a>
               </div>
 
+              {/* Error message */}
+              {error && (
+                <p style={{
+                  margin: 0, fontSize: '0.8rem', color: '#E24B4A',
+                  fontFamily: 'Pretendard, sans-serif', textAlign: 'center',
+                }}>
+                  {error}
+                </p>
+              )}
+
               {/* ── Login CTA ── */}
               <button
                 type="submit"
+                disabled={loading}
                 className={`${styles.loginCta} login-cta`}
                 style={{
                   width: '100%',
@@ -652,12 +687,13 @@ export default function LoginPage() {
                   fontSize: '1rem',
                   letterSpacing: '0.03em',
                   color: '#FFFFFF',
-                  cursor: 'pointer',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: loading ? 0.7 : 1,
                   boxShadow: '0 4px 24px rgba(255,107,107,0.42)',
                   marginTop: '4px',
                 }}
               >
-                로그인
+                {loading ? '로그인 중...' : '로그인'}
               </button>
 
               {/* OR Divider */}
@@ -685,6 +721,7 @@ export default function LoginPage() {
                 {/* Kakao */}
                 <button
                   type="button"
+                  onClick={loginWithKakao}
                   className={`${styles.kakaoBtn} kakao-btn`}
                   style={{
                     width: '100%', height: '52px',
@@ -705,6 +742,7 @@ export default function LoginPage() {
                 {/* Google */}
                 <button
                   type="button"
+                  onClick={loginWithGoogle}
                   className={`${styles.googleBtn} google-btn`}
                   style={{
                     width: '100%', height: '52px',

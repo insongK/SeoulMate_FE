@@ -1,7 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import styles from './signup.module.css'
+import { signup, saveTokens } from '@/lib/auth'
+import { useAuthStore } from '@/stores/auth.store'
 
 /* ── Icons ─────────────────────────────────────────────────── */
 
@@ -124,6 +127,9 @@ const PARTICLES = [
 /* ── Component ─────────────────────────────────────────────── */
 
 export default function SignupPage() {
+  const router  = useRouter()
+  const setUser = useAuthStore(s => s.setUser)
+
   const [nickname, setNickname]             = useState('')
   const [email, setEmail]                   = useState('')
   const [emailTouched, setEmailTouched]     = useState(false)
@@ -140,6 +146,8 @@ export default function SignupPage() {
   const [confirmFocus, setConfirmFocus]     = useState(false)
 
   const [isDark, setIsDark]                 = useState(true)
+  const [loading, setLoading]               = useState(false)
+  const [error, setError]                   = useState<string | null>(null)
 
   useEffect(() => {
     const stored = localStorage.getItem('seoulmate-theme')
@@ -166,9 +174,26 @@ export default function SignupPage() {
   const toggleVibe = (v: string) =>
     setSelectedVibes(prev => prev.includes(v) ? prev.filter(x => x !== v) : [...prev, v])
 
-  const handleSubmit = (e: { preventDefault(): void }) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault()
-    if (!canSubmit) return
+    if (!canSubmit || loading) return
+    setLoading(true)
+    setError(null)
+    try {
+      const data = await signup({
+        email,
+        password: pw,
+        nickname: nickname.trim(),
+        ...(selectedVibes.length > 0 && { preferences: { vibes: selectedVibes } }),
+      })
+      saveTokens(data.accessToken, data.refreshToken)
+      setUser(data.user)
+      router.replace('/')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '회원가입에 실패했어요.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const inputStyle = (focused: boolean, valid?: boolean, error?: boolean): React.CSSProperties => ({
@@ -655,11 +680,21 @@ export default function SignupPage() {
                 </p>
               </div>
 
+              {/* Error message */}
+              {error && (
+                <p style={{
+                  margin: 0, fontSize: '0.8rem', color: '#E24B4A',
+                  fontFamily: 'Pretendard, sans-serif', textAlign: 'center',
+                }}>
+                  {error}
+                </p>
+              )}
+
               {/* CTA */}
               <button
                 type="submit"
                 className="su-cta"
-                disabled={!canSubmit}
+                disabled={!canSubmit || loading}
                 style={{
                   width: '100%', height: '52px',
                   marginTop: '28px', borderRadius: '12px', border: 'none',
@@ -669,12 +704,13 @@ export default function SignupPage() {
                   fontFamily: 'Pretendard, sans-serif',
                   fontWeight: 700, fontSize: '16px',
                   color: canSubmit ? '#000000' : t.ctaDisabledText,
-                  cursor: canSubmit ? 'pointer' : 'not-allowed',
+                  cursor: canSubmit && !loading ? 'pointer' : 'not-allowed',
+                  opacity: loading ? 0.7 : 1,
                   boxShadow: canSubmit ? '0 4px 20px rgba(245,166,35,0.35)' : 'none',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}
               >
-                회원가입
+                {loading ? '가입 중...' : '회원가입'}
               </button>
 
               {/* Login link */}
