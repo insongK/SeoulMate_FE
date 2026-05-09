@@ -27,8 +27,8 @@ function applyFilters(courses: Course[], filter: FilterState): Course[] {
   if (filter.sort === 'budget') {
     result.sort((a, b) => a.totalBudget - b.totalBudget)
   } else if (filter.sort === 'congestion') {
-    const order = { low: 0, mid: 1, high: 2 }
-    result.sort((a, b) => order[a.congestion] - order[b.congestion])
+    const order: Record<string, number> = { low: 0, medium: 1, high: 2, unknown: 3 }
+    result.sort((a, b) => (order[a.congestion] ?? 3) - (order[b.congestion] ?? 3))
   }
 
   return result
@@ -526,6 +526,7 @@ function ResultPageInner() {
                     course={course}
                     viewMode={viewMode}
                     onSaveToggle={handleSaveToggle}
+                    href={`/result/${course.id}?budget=${searchParams.get('budget') ?? ''}`}
                   />
                 </div>
               ))}

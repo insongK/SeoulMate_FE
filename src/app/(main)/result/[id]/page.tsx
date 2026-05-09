@@ -1,40 +1,11 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { loadKakaoMaps } from '@/lib/kakao'
 import { getMidpoint, totalDistance, walkingMinutes } from '@/utils/map'
+import { getCourse, toggleSaveCourse } from '@/queries/course.queries'
 import type { Course, Congestion } from '@/types/course.types'
-
-/* ── Mock data ─────────────────────────────────────────────────── */
-function mockCourse(id: string): Course {
-  return {
-    id, title: '한강 야경 로맨틱 데이트',
-    description: '해질녘 한강에서 시작해 성수·한남을 거쳐 반포 분수로 마무리하는 4시간 감성 코스',
-    totalDuration: '4시간', durationMinutes: 240,
-    totalCost: 92000, totalBudget: 92000, userBudget: 100000,
-    vibes: ['로맨틱', '야경'], region: '한강',
-    transportation: 'transit', congestion: 'mid', isSaved: false,
-    places: [
-      { id: 'p1', order: 1, name: '뚝섬 한강공원', category: '공원',
-        description: '넓은 잔디밭과 한강 뷰가 아름다운 공원',
-        reason: '해질녘 노을이 가장 아름다운 포인트예요. 피크닉 매트를 깔고 여유롭게 시작하기 좋고, 자전거 대여도 가능해 활동적인 시간을 보낼 수 있어요.',
-        duration: 60, cost: 15000, congestion: 'medium', lat: 37.5271, lng: 127.0652 },
-      { id: 'p2', order: 2, name: '성수 감성 카페', category: '카페',
-        description: '인더스트리얼 인테리어의 트렌디한 루프탑 카페',
-        reason: '성수 특유의 힙한 분위기와 루프탑 뷰가 멋져서 데이트 사진 찍기 최고예요. SNS 핫플로 예약 필수예요.',
-        duration: 60, cost: 22000, congestion: 'high', lat: 37.5443, lng: 127.0557 },
-      { id: 'p3', order: 3, name: '한남동 파인다이닝', category: '레스토랑',
-        description: '야경 뷰 창가 자리가 유명한 이탈리안 레스토랑',
-        reason: '야경이 보이는 창가 자리에서 분위기 있는 저녁 식사를 즐길 수 있어요. 와인 페어링 코스를 추천해요.',
-        duration: 90, cost: 42000, congestion: 'low', lat: 37.5384, lng: 127.0052 },
-      { id: 'p4', order: 4, name: '반포 달빛무지개분수', category: '관광',
-        description: '세계 최장 교량 분수, 기네스 기록 보유',
-        reason: '밤 9시 분수 쇼는 꼭 봐야 할 서울의 명소예요. 로맨틱한 마무리로 완벽하고 사진도 환상적이에요.',
-        duration: 30, cost: 13000, congestion: 'medium', lat: 37.5085, lng: 126.9943 },
-    ],
-  }
-}
 
 /* ── Helpers ───────────────────────────────────────────────────── */
 function fmtKRW(n: number) { return `₩${n.toLocaleString('ko-KR')}` }
@@ -44,9 +15,10 @@ function fmtDur(m: number) {
 }
 
 const CONGESTION: Record<Congestion, [string, string]> = {
-  low:    ['여유', 'var(--success)'],
-  medium: ['보통', 'var(--warning)'],
-  high:   ['혼잡', 'var(--danger)'],
+  low:     ['여유', 'var(--success)'],
+  medium:  ['보통', 'var(--warning)'],
+  high:    ['혼잡', 'var(--danger)'],
+  unknown: ['정보없음', 'var(--fg-3)'],
 }
 
 /* ── Pin DOM ───────────────────────────────────────────────────── */
@@ -77,12 +49,15 @@ function makePinEl(idx: number, total: number, active: boolean): HTMLDivElement 
    Page
    ════════════════════════════════════════════════════════════════ */
 export default function ResultDetailPage() {
-  const params  = useParams()
-  const router  = useRouter()
-  const id      = params?.id as string
+  const params       = useParams()
+  const router       = useRouter()
+  const searchParams = useSearchParams()
+  const id           = params?.id as string
+  const userBudget   = Number(searchParams.get('budget')) || 0
 
   const [course,     setCourse]     = useState<Course | null>(null)
   const [loading,    setLoading]    = useState(true)
+  const [error,      setError]      = useState<string | null>(null)
   const [mapReady,   setMapReady]   = useState(false)
   const [mapError,   setMapError]   = useState(false)
   const [activeStop, setActiveStop] = useState(0)
@@ -101,24 +76,33 @@ export default function ResultDetailPage() {
 
   /* ── Load data ─────────────────────────────────────────────── */
   useEffect(() => {
-    const t = setTimeout(() => {
-      const data = mockCourse(id)
-      setCourse(data)
-      setIsSaved(data.isSaved)
-      setLoading(false)
-    }, 700)
-    return () => clearTimeout(t)
+    let cancelled = false
+    setLoading(true)
+    setError(null)
+    getCourse(id)
+      .then(data => {
+        if (cancelled) return
+        setCourse(data)
+        setIsSaved(data.isSaved)
+      })
+      .catch(e => {
+        if (cancelled) return
+        setError(e instanceof Error ? e.message : '코스를 불러오지 못했어요.')
+      })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
   }, [id])
 
   /* ── Budget bar animate ────────────────────────────────────── */
   useEffect(() => {
     if (!course) return
+    const budget = userBudget || course.totalCost
     const t = setTimeout(() => {
-      const pct = Math.min((course.totalCost / course.userBudget) * 100, 100)
+      const pct = Math.min((course.totalCost / budget) * 100, 100)
       setBarWidth(pct)
     }, 200)
     return () => clearTimeout(t)
-  }, [course])
+  }, [course, userBudget])
 
   /* ── Init Kakao Maps ───────────────────────────────────────── */
   useEffect(() => {
@@ -238,9 +222,14 @@ export default function ResultDetailPage() {
   }
 
   function handleSave() {
+    if (!course) return
     const next = !isSaved
     setIsSaved(next)
     showToast(next ? '코스를 저장했어요' : '저장을 취소했어요')
+    toggleSaveCourse(course.id, next).catch(() => {
+      setIsSaved(!next)
+      showToast('저장 처리에 실패했어요.')
+    })
   }
 
   async function handleShare() {
@@ -291,10 +280,19 @@ export default function ResultDetailPage() {
   /* ── Loading skeleton ──────────────────────────────────────── */
   if (loading) return <LoadingSkeleton />
 
-  /* ── 404 handled by mock (would redirect in real impl) ─────── */
-  if (!course) return null
+  if (error || !course) return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, background: 'var(--bg)', fontFamily: 'var(--font-sans)' }}>
+      <div style={{ fontSize: 36 }}>⚠️</div>
+      <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--fg)' }}>코스를 불러오지 못했어요</div>
+      <div style={{ fontSize: 13, color: 'var(--fg-2)' }}>{error}</div>
+      <button onClick={() => router.back()} style={{ marginTop: 8, padding: '10px 24px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', background: 'transparent', color: 'var(--fg-2)', cursor: 'pointer', fontSize: 14, fontFamily: 'var(--font-sans)' }}>
+        돌아가기
+      </button>
+    </div>
+  )
 
-  const overBudget = course.totalCost > course.userBudget
+  const effectiveBudget = userBudget || course.totalCost
+  const overBudget = course.totalCost > effectiveBudget
 
   return (
     <>
@@ -648,10 +646,10 @@ export default function ResultDetailPage() {
                   color: overBudget ? 'var(--danger)' : 'var(--primary)',
                   fontFamily: 'var(--font-mono)',
                 }}>
-                  {fmtKRW(course.totalCost)} / {fmtKRW(course.userBudget)}
+                  {fmtKRW(course.totalCost)} / {fmtKRW(effectiveBudget)}
                   {overBudget && (
                     <span style={{ fontSize: 11, marginLeft: 6 }}>
-                      초과 +{fmtKRW(course.totalCost - course.userBudget)}
+                      초과 +{fmtKRW(course.totalCost - effectiveBudget)}
                     </span>
                   )}
                 </span>
@@ -665,7 +663,7 @@ export default function ResultDetailPage() {
                 }}/>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6, fontSize: 11, color: 'var(--fg-3)' }}>
-                <span>₩0</span><span>{fmtKRW(course.userBudget)}</span>
+                <span>₩0</span><span>{fmtKRW(effectiveBudget)}</span>
               </div>
             </div>
 

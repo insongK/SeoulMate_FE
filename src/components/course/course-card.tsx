@@ -4,25 +4,27 @@ import { useRouter } from 'next/navigation'
 import type { Course, CongestionLevel } from '@/types/course.types'
 
 const CONGESTION: Record<CongestionLevel, { label: string; color: string; bg: string }> = {
-  low:  { label: '여유', color: 'var(--success)', bg: 'rgba(52,199,123,0.12)' },
-  mid:  { label: '보통', color: 'var(--warning)', bg: 'rgba(245,166,35,0.12)' },
-  high: { label: '혼잡', color: 'var(--danger)',  bg: 'rgba(232,84,122,0.12)' },
+  low:     { label: '여유', color: 'var(--success)', bg: 'rgba(52,199,123,0.12)' },
+  medium:  { label: '보통', color: 'var(--warning)', bg: 'rgba(245,166,35,0.12)' },
+  high:    { label: '혼잡', color: 'var(--danger)',  bg: 'rgba(232,84,122,0.12)' },
+  unknown: { label: '정보없음', color: 'var(--fg-3)', bg: 'var(--surface-2)' },
 }
 
 interface CourseCardProps {
   course: Course
   viewMode: 'grid' | 'list'
   onSaveToggle: (id: string, saved: boolean) => void
+  href?: string
 }
 
-export function CourseCard({ course, viewMode, onSaveToggle }: CourseCardProps) {
+export function CourseCard({ course, viewMode, onSaveToggle, href }: CourseCardProps) {
   const router = useRouter()
   const isList = viewMode === 'list'
-  const cong = CONGESTION[course.congestion]
+  const cong = CONGESTION[course.congestion] ?? CONGESTION.unknown
 
   const navigate = (e?: React.MouseEvent) => {
     e?.stopPropagation()
-    router.push(`/result/${course.id}`)
+    router.push(href ?? `/result/${course.id}`)
   }
 
   return (

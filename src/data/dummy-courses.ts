@@ -13,7 +13,7 @@ export const DUMMY_COURSES: Course[] = [
     totalDuration: '3시간', durationMinutes: 180,
     totalBudget: 42000, totalCost: 42000, userBudget: 50000,
     vibes: ['감성', '힙한'], region: '홍대',
-    transportation: 'walk', isSaved: false, congestion: 'mid',
+    transportation: 'walk', isSaved: false, congestion: 'medium',
   },
   {
     id: 'crs_002',
@@ -70,7 +70,7 @@ export const DUMMY_COURSES: Course[] = [
     totalDuration: '4시간', durationMinutes: 240,
     totalBudget: 150000, totalCost: 150000, userBudget: 200000,
     vibes: ['럭셔리', '분위기'], region: '강남',
-    transportation: 'transit', isSaved: false, congestion: 'mid',
+    transportation: 'transit', isSaved: false, congestion: 'medium',
   },
   {
     id: 'crs_006',
@@ -84,7 +84,7 @@ export const DUMMY_COURSES: Course[] = [
     totalDuration: '3시간', durationMinutes: 180,
     totalBudget: 65000, totalCost: 65000, userBudget: 80000,
     vibes: ['맛집', '활동적'], region: '이태원',
-    transportation: 'mixed', isSaved: true, congestion: 'mid',
+    transportation: 'mixed', isSaved: true, congestion: 'medium',
   },
   {
     id: 'crs_007',

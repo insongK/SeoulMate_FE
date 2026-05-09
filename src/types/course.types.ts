@@ -1,8 +1,16 @@
-export type Congestion = 'low' | 'medium' | 'high'
+export type Congestion = 'low' | 'medium' | 'high' | 'unknown'
+export type CongestionLevel = Congestion
 export type SortType = 'recommended' | 'budget' | 'congestion'
 export type TransportType = 'walk' | 'transit' | 'mixed'
 export type PlaceType = '카페' | '식당' | '전시' | '야외' | '쇼핑'
-export type CongestionLevel = 'low' | 'mid' | 'high'
+
+export interface Weather {
+  source: string
+  skyStatus: string
+  temperature: number
+  rainProbability: number
+  weatherAlert: string | null
+}
 
 export interface Place {
   id: string
@@ -36,6 +44,7 @@ export interface Course {
   isSaved: boolean
   thumbnail?: string
   congestion: CongestionLevel
+  weather?: Weather
 }
 
 export interface FilterState {
