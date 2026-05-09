@@ -107,18 +107,20 @@ export default function ResultDetailPage() {
   /* ── Init Kakao Maps ───────────────────────────────────────── */
   useEffect(() => {
     if (!course || loading) return
+    console.log('[Map] loadKakaoMaps 시작, course.places:', course.places)
     loadKakaoMaps()
       .then(() => {
+        console.log('[Map] SDK 로드 성공, mapContRef:', mapContRef.current)
         try {
           initMap(course)
           setMapReady(true)
         } catch (e) {
-          console.error('[Map] initMap threw:', e)
+          console.log('[Map] initMap 에러:', e)
           setMapError(true)
         }
       })
       .catch((e) => {
-        console.error('[Map] SDK load failed:', e)
+        console.log('[Map] SDK 로드 실패:', e)
         setMapError(true)
       })
   }, [course, loading])
