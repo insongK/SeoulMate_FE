@@ -7,8 +7,7 @@ export async function loadKakaoMaps(): Promise<void> {
 
   _promise = new Promise<void>((resolve, reject) => {
     const key = process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY
-    console.log('[Kakao] key 존재:', !!key, '/ 길이:', key?.length)
-    if (!key) { reject(new Error('no-key')); return }
+    if (!key) { _promise = null; reject(new Error('no-key')); return }
 
     const script = document.createElement('script')
     script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(key)}&autoload=false`
