@@ -108,8 +108,19 @@ export default function ResultDetailPage() {
   useEffect(() => {
     if (!course || loading) return
     loadKakaoMaps()
-      .then(() => { initMap(course); setMapReady(true) })
-      .catch(() => setMapError(true))
+      .then(() => {
+        try {
+          initMap(course)
+          setMapReady(true)
+        } catch (e) {
+          console.error('[Map] initMap threw:', e)
+          setMapError(true)
+        }
+      })
+      .catch((e) => {
+        console.error('[Map] SDK load failed:', e)
+        setMapError(true)
+      })
   }, [course, loading])
 
   const initMap = useCallback((c: Course) => {
