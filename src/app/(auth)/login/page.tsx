@@ -1,10 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import styles from './login.module.css'
-import { login, loginWithKakao, loginWithGoogle, saveTokens } from '@/lib/auth'
-import { useAuthStore } from '@/stores/auth.store'
+import { login, loginWithKakao, loginWithGoogle } from '@/lib/auth'
+import { useAuthSubmit } from '@/hooks/use-auth-submit'
 
 /* ── Icons ─────────────────────────────────────────────────── */
 
@@ -137,8 +136,7 @@ const PARTICLES = [
 /* ── Component ─────────────────────────────────────────────── */
 
 export default function LoginPage() {
-  const router   = useRouter()
-  const setUser  = useAuthStore(s => s.setUser)
+  const { loading, error, submit } = useAuthSubmit()
 
   const [showPw, setShowPw]         = useState(false)
   const [email, setEmail]           = useState('')
@@ -146,8 +144,6 @@ export default function LoginPage() {
   const [emailFocus, setEmailFocus] = useState(false)
   const [pwFocus, setPwFocus]       = useState(false)
   const [isDark, setIsDark]         = useState(true)
-  const [loading, setLoading]       = useState(false)
-  const [error, setError]           = useState<string | null>(null)
 
   useEffect(() => {
     const stored = localStorage.getItem('seoulmate-theme')
@@ -168,21 +164,10 @@ export default function LoginPage() {
 
   const t = isDark ? DARK : LIGHT
 
-  const handleSubmit = async (e: React.SyntheticEvent) => {
+  const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault()
-    if (!email || !pw || loading) return
-    setLoading(true)
-    setError(null)
-    try {
-      const data = await login(email, pw)
-      saveTokens(data.accessToken, data.refreshToken)
-      setUser(data.user)
-      router.replace('/')
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '로그인에 실패했어요.')
-    } finally {
-      setLoading(false)
-    }
+    if (!email || !pw) return
+    submit(() => login(email, pw), '로그인에 실패했어요.')
   }
 
   return (

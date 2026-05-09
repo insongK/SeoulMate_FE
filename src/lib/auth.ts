@@ -60,13 +60,13 @@ export async function signup(params: SignupParams): Promise<AuthResponse> {
 
 export async function logout(): Promise<void> {
   const refreshToken = getRefreshToken()
+  clearTokens()
   if (!refreshToken) return
-  await fetch(`${BASE}/logout`, {
+  fetch(`${BASE}/logout`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ refreshToken }),
   }).catch(() => {})
-  clearTokens()
 }
 
 export async function refreshTokens(): Promise<AuthResponse> {

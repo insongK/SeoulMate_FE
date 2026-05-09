@@ -1,10 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import styles from './signup.module.css'
-import { signup, saveTokens } from '@/lib/auth'
-import { useAuthStore } from '@/stores/auth.store'
+import { signup } from '@/lib/auth'
+import { useAuthSubmit } from '@/hooks/use-auth-submit'
 
 /* ── Icons ─────────────────────────────────────────────────── */
 
@@ -127,8 +126,7 @@ const PARTICLES = [
 /* ── Component ─────────────────────────────────────────────── */
 
 export default function SignupPage() {
-  const router  = useRouter()
-  const setUser = useAuthStore(s => s.setUser)
+  const { loading, error, submit } = useAuthSubmit()
 
   const [nickname, setNickname]             = useState('')
   const [email, setEmail]                   = useState('')
@@ -146,8 +144,6 @@ export default function SignupPage() {
   const [confirmFocus, setConfirmFocus]     = useState(false)
 
   const [isDark, setIsDark]                 = useState(true)
-  const [loading, setLoading]               = useState(false)
-  const [error, setError]                   = useState<string | null>(null)
 
   useEffect(() => {
     const stored = localStorage.getItem('seoulmate-theme')
@@ -174,26 +170,18 @@ export default function SignupPage() {
   const toggleVibe = (v: string) =>
     setSelectedVibes(prev => prev.includes(v) ? prev.filter(x => x !== v) : [...prev, v])
 
-  const handleSubmit = async (e: React.SyntheticEvent) => {
+  const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault()
-    if (!canSubmit || loading) return
-    setLoading(true)
-    setError(null)
-    try {
-      const data = await signup({
+    if (!canSubmit) return
+    submit(
+      () => signup({
         email,
         password: pw,
         nickname: nickname.trim(),
         ...(selectedVibes.length > 0 && { preferences: { vibes: selectedVibes } }),
-      })
-      saveTokens(data.accessToken, data.refreshToken)
-      setUser(data.user)
-      router.replace('/')
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '회원가입에 실패했어요.')
-    } finally {
-      setLoading(false)
-    }
+      }),
+      '회원가입에 실패했어요.',
+    )
   }
 
   const inputStyle = (focused: boolean, valid?: boolean, error?: boolean): React.CSSProperties => ({
