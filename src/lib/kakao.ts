@@ -12,7 +12,10 @@ export async function loadKakaoMaps(): Promise<void> {
     const script = document.createElement('script')
     script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(key)}&autoload=false`
     script.onload = () => (window as any).kakao.maps.load(resolve)
-    script.onerror = () => reject(new Error('sdk-load-failed'))
+    script.onerror = () => {
+      _promise = null  // 실패 시 캐시 초기화 → 다음 호출에서 재시도 가능
+      reject(new Error('sdk-load-failed'))
+    }
     document.head.appendChild(script)
   })
 
