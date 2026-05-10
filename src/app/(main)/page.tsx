@@ -117,9 +117,16 @@ interface FormState {
 }
 
 
-const DURATIONS = ['1시간', '2시간', '3시간', '4시간 이상']
+const DURATIONS = ['2시간 이하', '4시간 이하', '6시간 이하', '8시간 이하', '10시간 이하', '12시간 이하', '12시간 초과']
+const DURATION_TICK_LABELS = ['~2h', '~4h', '~6h', '~8h', '~10h', '~12h', '12h+']
 const DURATION_API_MAP: Record<string, string> = {
-  '1시간': '2h', '2시간': '2h', '3시간': 'half-day', '4시간 이상': 'full-day',
+  '2시간 이하':  'lte-2h',
+  '4시간 이하':  'gt-2h-lte-4h',
+  '6시간 이하':  'gt-4h-lte-6h',
+  '8시간 이하':  'gt-6h-lte-8h',
+  '10시간 이하': 'gt-8h-lte-10h',
+  '12시간 이하': 'gt-10h-lte-12h',
+  '12시간 초과': 'gt-12h',
 }
 const PURPOSES  = ['데이트', '친구', '가족', '혼자', '비즈니스']
 const BUDGET_MIN = 0
@@ -817,8 +824,8 @@ export default function HomePage() {
                           }}/>
                         )}
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 10, color: 'var(--fg-3)' }}>
-                        {DURATIONS.map(d => <span key={d}>{d}</span>)}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 10, color: 'var(--fg-3)', fontFamily: 'var(--font-mono)' }}>
+                        {DURATION_TICK_LABELS.map(d => <span key={d}>{d}</span>)}
                       </div>
                     </div>
                   )
