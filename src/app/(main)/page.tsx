@@ -113,7 +113,7 @@ const DURATION_API_MAP: Record<string, string> = {
   '1시간': '2h', '2시간': '2h', '3시간': 'half-day', '4시간 이상': 'full-day',
 }
 const PURPOSES  = ['데이트', '친구', '가족', '혼자', '비즈니스']
-const BUDGET_MIN = 10000
+const BUDGET_MIN = 0
 const BUDGET_MAX = 200000
 const QUICK_TAGS = ['한강 야경', '성수 카페', '이태원 펍', '북촌 산책']
 
@@ -149,7 +149,7 @@ export default function HomePage() {
 
   /* ── Form state ──────────────────────────────────────────── */
   const [form, setForm] = useState<FormState>({
-    vibes: [], region: '', budget: 80000, duration: '', purpose: '',
+    vibes: [], region: '', budget: 0, duration: '', purpose: '',
   })
   const [regionQuery, setRegionQuery] = useState('')
 
@@ -198,7 +198,7 @@ export default function HomePage() {
 
   /* ── Reset form ──────────────────────────────────────────── */
   const resetForm = () => {
-    setForm({ vibes: [], region: '', budget: 80000, duration: '', purpose: '' })
+    setForm({ vibes: [], region: '', budget: 0, duration: '', purpose: '' })
     setRegionQuery('')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -215,7 +215,7 @@ export default function HomePage() {
   const filledCount = [
     form.vibes.length > 0,
     form.region.length > 0,
-    form.budget > 0,
+    true,
     form.duration.length > 0,
   ].filter(Boolean).length
 
@@ -383,14 +383,10 @@ export default function HomePage() {
           .hero-grid { min-height: auto !important; }
         }
 
-        /* Vibe chips — horizontal scroll, no wrap */
+        /* Vibe chips — wrap all visible */
         .vibe-scroll {
-          display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 5px;
-          scrollbar-width: none; -ms-overflow-style: none;
-          padding-bottom: 2px;
+          display: flex; flex-wrap: wrap; gap: 5px;
         }
-        .vibe-scroll::-webkit-scrollbar { display: none; }
-        .vibe-scroll button { flex-shrink: 0; }
         @media (prefers-reduced-motion: reduce) {
           .h-e1,.h-e2,.h-e3,.h-e4,.h-e5 { animation: none !important; }
           .chip-btn,.dur-card,.cta-btn,.cta-hero { transition: none !important; }
