@@ -289,6 +289,25 @@ function ResultPageInner() {
   const fetchCourses = useCallback(async () => {
     setLoading(true)
     setError(null)
+
+    const cacheKey = `course-cache:${searchParams.toString()}`
+    const CACHE_TTL = 5 * 60 * 1000 // 5분
+
+    // 캐시 확인 (재시도 버튼은 fetchKey를 올려 캐시를 건너뜀)
+    if (fetchKey === 0) {
+      try {
+        const raw = sessionStorage.getItem(cacheKey)
+        if (raw) {
+          const { courses: cached, ts } = JSON.parse(raw)
+          if (Date.now() - ts < CACHE_TTL) {
+            setCourses(cached)
+            setLoading(false)
+            return
+          }
+        }
+      } catch { /* sessionStorage 접근 실패는 무시 */ }
+    }
+
     try {
       const vibesRaw = searchParams.get('vibes') ?? ''
       const data = await recommendCourses({
@@ -300,6 +319,9 @@ function ResultPageInner() {
         query:    searchParams.get('query') ?? undefined,
       })
       setCourses(data.courses)
+      try {
+        sessionStorage.setItem(cacheKey, JSON.stringify({ courses: data.courses, ts: Date.now() }))
+      } catch { /* 저장 실패는 무시 */ }
     } catch (e) {
       setError(e instanceof Error ? e.message : '코스를 불러오는 데 실패했어요.')
     } finally {

@@ -1,7 +1,10 @@
 'use client'
 
+import { useRef, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { loadKakaoMaps } from '@/lib/kakao'
 import type { Course, CongestionLevel } from '@/types/course.types'
+import { skyToEmoji } from '@/components/course/weather-widget'
 
 const CONGESTION: Record<CongestionLevel, { label: string; color: string; bg: string }> = {
   low:     { label: '여유', color: 'var(--success)', bg: 'rgba(52,199,123,0.12)' },
@@ -9,6 +12,72 @@ const CONGESTION: Record<CongestionLevel, { label: string; color: string; bg: st
   high:    { label: '혼잡', color: 'var(--danger)',  bg: 'rgba(232,84,122,0.12)' },
   unknown: { label: '정보없음', color: 'var(--fg-3)', bg: 'var(--surface-2)' },
 }
+
+/* ── Mini map thumbnail ────────────────────────────────────────── */
+
+function MapThumbnail({ places }: { places: Array<{ lat: number; lng: number }> }) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    if (!containerRef.current || places.length === 0) return
+
+    loadKakaoMaps()
+      .then(() => {
+        if (cancelled || !containerRef.current) return
+        const kakao = (window as any).kakao
+
+        const avgLat = places.reduce((s, p) => s + p.lat, 0) / places.length
+        const avgLng = places.reduce((s, p) => s + p.lng, 0) / places.length
+
+        const map = new kakao.maps.Map(containerRef.current, {
+          center: new kakao.maps.LatLng(avgLat, avgLng),
+          level: 6,
+        })
+        map.setDraggable(false)
+        map.setZoomable(false)
+
+        places.forEach(place => {
+          new kakao.maps.Marker({
+            position: new kakao.maps.LatLng(place.lat, place.lng),
+            map,
+          })
+        })
+
+        if (places.length > 1) {
+          new kakao.maps.Polyline({
+            path: places.map(p => new kakao.maps.LatLng(p.lat, p.lng)),
+            strokeWeight: 2,
+            strokeColor: '#F5A623',
+            strokeOpacity: 0.85,
+            strokeStyle: 'solid',
+          }).setMap(map)
+        }
+
+        setLoaded(true)
+      })
+      .catch(() => {})
+
+    return () => { cancelled = true }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <div style={{ position: 'absolute', inset: 0 }}>
+      <div
+        ref={containerRef}
+        style={{
+          width: '100%', height: '100%',
+          opacity: loaded ? 1 : 0,
+          transition: 'opacity 0.4s ease',
+          pointerEvents: 'none',
+        }}
+      />
+    </div>
+  )
+}
+
+/* ── Course card ───────────────────────────────────────────────── */
 
 interface CourseCardProps {
   course: Course
@@ -58,25 +127,45 @@ export function CourseCard({ course, viewMode, onSaveToggle, href }: CourseCardP
       <div
         style={{
           width: isList ? 96 : '100%',
-          height: isList ? '100%' : 160,
+          height: isList ? undefined : 160,
           minHeight: isList ? 96 : undefined,
           flexShrink: 0,
-          background: 'var(--grad-amber)',
+          background: 'var(--grad-amber)',   // 지도 로드 전 fallback
           position: 'relative',
           overflow: 'hidden',
           margin: isList ? 14 : 0,
           borderRadius: isList ? 'var(--radius-md)' : 0,
         }}
       >
-        {course.thumbnail && (
-          <img
-            src={course.thumbnail}
-            alt={course.title}
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85 }}
-          />
-        )}
+        <MapThumbnail places={course.places} />
+
+        {/* 그라디언트 오버레이 (grid 모드만) */}
         {!isList && (
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg,rgba(13,13,13,0.5) 0%,transparent 60%)' }} />
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 1,
+            background: 'linear-gradient(0deg,rgba(13,13,13,0.55) 0%,transparent 55%)',
+            pointerEvents: 'none',
+          }} />
+        )}
+
+        {/* 날씨 뱃지 */}
+        {course.weather && (
+          <div style={{
+            position: 'absolute', top: 8, right: 8, zIndex: 2,
+            display: 'flex', alignItems: 'center', gap: 4,
+            padding: '3px 8px',
+            borderRadius: 'var(--radius-pill)',
+            background: 'rgba(13,13,13,0.72)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            border: '1px solid rgba(255,255,255,0.10)',
+            fontSize: 12, fontWeight: 700, color: '#fff',
+            whiteSpace: 'nowrap',
+            pointerEvents: 'none',
+          }}>
+            <span style={{ fontSize: 13 }}>{skyToEmoji(course.weather.skyStatus)}</span>
+            <span style={{ fontFamily: 'var(--font-mono)' }}>{course.weather.temperature}°</span>
+          </div>
         )}
       </div>
 

@@ -1,10 +1,8 @@
 import type { Course, Weather } from '@/types/course.types'
-import { DUMMY_COURSES } from '@/data/dummy-courses'
 import { apiFetch } from '@/lib/api'
 import { formatDuration } from '@/utils/format'
 
 const COURSE_BASE = 'https://api.seoulmate.my/api/courses'
-const USE_DUMMY = process.env.NEXT_PUBLIC_USE_DUMMY === 'true'
 
 /* ── Request / Response types ─────────────────────────────────── */
 
@@ -51,6 +49,7 @@ interface ApiCourseDetail {
   totalCost: number
   duration: number
   congestion: string
+  weather?: Weather
   places: ApiPlaceDetail[]
 }
 
@@ -85,7 +84,7 @@ function mapCongestion(raw: string): Course['congestion'] {
   return 'unknown'
 }
 
-function mapApiCourse(raw: ApiCourse): Course {
+function mapApiCourse(raw: ApiCourse, isSaved = false): Course {
   return {
     id:              raw.id,
     title:           raw.title,
@@ -105,7 +104,7 @@ function mapApiCourse(raw: ApiCourse): Course {
     vibes:           [],
     region:          '',
     transportation:  'mixed',
-    isSaved:         false,
+    isSaved,
     congestion:      mapCongestion(raw.congestion),
     weather:         raw.weather,
   }
@@ -138,6 +137,7 @@ function mapApiCourseDetail(raw: ApiCourseDetail): Course {
     transportation:  'mixed',
     isSaved:         false,
     congestion:      mapCongestion(raw.congestion),
+    weather:         raw.weather,
   }
 }
 
@@ -155,11 +155,6 @@ async function throwOnError(res: Response): Promise<void> {
 /* ── API calls ────────────────────────────────────────────────── */
 
 export async function recommendCourses(params: RecommendParams): Promise<RecommendResult> {
-  if (USE_DUMMY) {
-    await new Promise(r => setTimeout(r, 600))
-    return { courses: DUMMY_COURSES }
-  }
-
   const res = await apiFetch(`${COURSE_BASE}/recommend`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -169,19 +164,12 @@ export async function recommendCourses(params: RecommendParams): Promise<Recomme
 
   const json: ApiRecommendResponse = await res.json()
   return {
-    courses:  json.courses.map(mapApiCourse),
+    courses:  json.courses.map(c => mapApiCourse(c)),
     warnings: json.warnings,
   }
 }
 
 export async function getCourse(id: string): Promise<Course> {
-  if (USE_DUMMY) {
-    await new Promise(r => setTimeout(r, 400))
-    const found = DUMMY_COURSES.find(c => c.id === id)
-    if (!found) throw new Error('코스를 찾을 수 없어요.')
-    return found
-  }
-
   const res = await apiFetch(`${COURSE_BASE}/${id}`)
   await throwOnError(res)
 
@@ -190,17 +178,12 @@ export async function getCourse(id: string): Promise<Course> {
 }
 
 export async function getMyCourses(page = 1, pageSize = 10): Promise<CourseListResult> {
-  if (USE_DUMMY) {
-    await new Promise(r => setTimeout(r, 400))
-    return { courses: DUMMY_COURSES.slice(0, pageSize), total: DUMMY_COURSES.length, page, pageSize }
-  }
-
   const res = await apiFetch(`${COURSE_BASE}/?page=${page}&page_size=${pageSize}`)
   await throwOnError(res)
 
   const json: ApiListResponse = await res.json()
   return {
-    courses:  json.data.map(mapApiCourse),
+    courses:  json.data.map(c => mapApiCourse(c)),
     total:    json.total,
     page:     json.page,
     pageSize: json.page_size,
@@ -208,18 +191,12 @@ export async function getMyCourses(page = 1, pageSize = 10): Promise<CourseListR
 }
 
 export async function getSavedCourses(page = 1, pageSize = 10): Promise<CourseListResult> {
-  if (USE_DUMMY) {
-    await new Promise(r => setTimeout(r, 400))
-    const saved = DUMMY_COURSES.filter(c => c.isSaved)
-    return { courses: saved, total: saved.length, page, pageSize }
-  }
-
   const res = await apiFetch(`${COURSE_BASE}/saved?page=${page}&page_size=${pageSize}`)
   await throwOnError(res)
 
   const json: ApiListResponse = await res.json()
   return {
-    courses:  json.data.map(mapApiCourse),
+    courses:  json.data.map(c => mapApiCourse(c, true)),
     total:    json.total,
     page:     json.page,
     pageSize: json.page_size,
@@ -227,19 +204,16 @@ export async function getSavedCourses(page = 1, pageSize = 10): Promise<CourseLi
 }
 
 export async function saveCourse(id: string, notes?: string): Promise<void> {
-  if (USE_DUMMY) return
-
   const res = await apiFetch(`${COURSE_BASE}/${id}/save`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(notes ? { notes } : {}),
   })
+  if (res.status === 409) return  // 이미 저장됨 → 성공으로 처리
   await throwOnError(res)
 }
 
 export async function unsaveCourse(id: string): Promise<void> {
-  if (USE_DUMMY) return
-
   const res = await apiFetch(`${COURSE_BASE}/${id}/save`, { method: 'DELETE' })
   await throwOnError(res)
 }

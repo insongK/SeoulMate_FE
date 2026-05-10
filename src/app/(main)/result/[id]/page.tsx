@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { loadKakaoMaps } from '@/lib/kakao'
 import { getMidpoint, totalDistance, walkingMinutes } from '@/utils/map'
 import { getCourse, toggleSaveCourse } from '@/queries/course.queries'
+import { WeatherWidget } from '@/components/course/weather-widget'
 import type { Course, Congestion } from '@/types/course.types'
 
 /* ── Helpers ───────────────────────────────────────────────────── */
@@ -157,13 +158,6 @@ export default function ResultDetailPage() {
       strokeStyle: 'dashed',
     }).setMap(map)
 
-    /* dark overlay div */
-    if (mapContRef.current) {
-      const dark = document.createElement('div')
-      dark.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,0.35);pointer-events:none;z-index:1'
-      mapContRef.current.style.position = 'relative'
-      mapContRef.current.appendChild(dark)
-    }
   }, [])
 
   /* ── Update pin styles when active changes ─────────────────── */
@@ -255,6 +249,7 @@ export default function ResultDetailPage() {
     setToast(msg)
     setTimeout(() => setToast(null), 2500)
   }
+
 
   /* ── Map stats pill ────────────────────────────────────────── */
   function DistancePill() {
@@ -500,24 +495,6 @@ export default function ResultDetailPage() {
                   </svg>
                   공유
                 </button>
-                {/* Navigate */}
-                <button
-                  onClick={() => router.push(`/result/${id}/navigate`)}
-                  style={{
-                    flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                    padding: '10px 20px', borderRadius: 'var(--radius-md)',
-                    border: 'none', background: 'var(--grad-amber)',
-                    color: 'var(--fg-on-primary)',
-                    cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 700,
-                    boxShadow: '0 4px 16px rgba(245,166,35,0.35)',
-                    transition: 'all .2s var(--ease-out)',
-                  }}
-                >
-                  <svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round">
-                    <polygon points="3 11 22 2 13 21 11 13 3 11"/>
-                  </svg>
-                  코스 시작
-                </button>
               </div>
             </div>
 
@@ -617,6 +594,22 @@ export default function ResultDetailPage() {
                             background: `${cColor}18`, color: cColor,
                             fontSize: 11, fontWeight: 600,
                           }}>{cLabel}</span>
+                          <a
+                            href={`https://map.kakao.com/link/map/${encodeURIComponent(place.name)},${place.lat},${place.lng}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={e => e.stopPropagation()}
+                            style={{
+                              display: 'inline-flex', alignItems: 'center', gap: 4,
+                              padding: '2px 8px', borderRadius: 'var(--radius-pill)',
+                              background: 'rgba(255,220,0,0.1)', border: '1px solid rgba(255,220,0,0.25)',
+                              fontSize: 11, fontWeight: 600, color: '#b8960a',
+                              textDecoration: 'none',
+                              flexShrink: 0,
+                            }}
+                          >
+                            지도 보기
+                          </a>
                         </div>
 
                         {/* Expandable reason */}
@@ -673,6 +666,8 @@ export default function ResultDetailPage() {
                 <span>₩0</span><span>{fmtKRW(effectiveBudget)}</span>
               </div>
             </div>
+
+            <WeatherWidget weather={course.weather} />
 
           </div>
         </div>
