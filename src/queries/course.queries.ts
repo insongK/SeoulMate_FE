@@ -40,6 +40,9 @@ interface ApiCourse {
   congestion: string   // "low" | "medium" | "high" | "unknown"
   weather?: Weather
   places: ApiPlaceSummary[]
+  isRecommended?: boolean
+  recommendationRank?: number
+  recommendationType?: string
 }
 
 interface ApiCourseDetail {
@@ -54,6 +57,7 @@ interface ApiCourseDetail {
 }
 
 interface ApiRecommendResponse {
+  recommendedCourseId?: string
   courses: ApiCourse[]
   warnings?: string[]
 }
@@ -66,6 +70,7 @@ interface ApiListResponse {
 }
 
 export interface RecommendResult {
+  recommendedCourseId?: string
   courses: Course[]
   warnings?: string[]
 }
@@ -86,27 +91,30 @@ function mapCongestion(raw: string): Course['congestion'] {
 
 function mapApiCourse(raw: ApiCourse, isSaved = false): Course {
   return {
-    id:              raw.id,
-    title:           raw.title,
-    description:     raw.description ?? '',
-    places:          raw.places.map(p => ({
+    id:                 raw.id,
+    title:              raw.title,
+    description:        raw.description ?? '',
+    places:             raw.places.map(p => ({
       id:    p.id,
       name:  p.name,
       lat:   p.lat,
       lng:   p.lng,
       order: p.order,
     })),
-    totalDuration:   formatDuration(raw.duration),
-    durationMinutes: raw.duration,
-    totalBudget:     raw.totalCost,
-    totalCost:       raw.totalCost,
-    userBudget:      raw.totalCost,
-    vibes:           [],
-    region:          '',
-    transportation:  'mixed',
+    totalDuration:      formatDuration(raw.duration),
+    durationMinutes:    raw.duration,
+    totalBudget:        raw.totalCost,
+    totalCost:          raw.totalCost,
+    userBudget:         raw.totalCost,
+    vibes:              [],
+    region:             '',
+    transportation:     'mixed',
     isSaved,
-    congestion:      mapCongestion(raw.congestion),
-    weather:         raw.weather,
+    congestion:         mapCongestion(raw.congestion),
+    weather:            raw.weather,
+    isRecommended:      raw.isRecommended,
+    recommendationRank: raw.recommendationRank,
+    recommendationType: raw.recommendationType as Course['recommendationType'],
   }
 }
 
@@ -164,8 +172,9 @@ export async function recommendCourses(params: RecommendParams): Promise<Recomme
 
   const json: ApiRecommendResponse = await res.json()
   return {
-    courses:  json.courses.map(c => mapApiCourse(c)),
-    warnings: json.warnings,
+    recommendedCourseId: json.recommendedCourseId,
+    courses:             json.courses.map(c => mapApiCourse(c)),
+    warnings:            json.warnings,
   }
 }
 

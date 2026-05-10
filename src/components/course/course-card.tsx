@@ -148,6 +148,22 @@ export function CourseCard({ course, viewMode, onSaveToggle, href }: CourseCardP
           }} />
         )}
 
+        {/* 추천 뱃지 */}
+        {course.isRecommended && (
+          <div style={{
+            position: 'absolute', top: 8, left: 8, zIndex: 2,
+            display: 'flex', alignItems: 'center', gap: 3,
+            padding: '3px 8px',
+            borderRadius: 'var(--radius-pill)',
+            background: 'var(--primary)',
+            fontSize: 11, fontWeight: 700, color: '#fff',
+            letterSpacing: '0.04em',
+            pointerEvents: 'none',
+          }}>
+            ✦ 추천
+          </div>
+        )}
+
         {/* 날씨 뱃지 */}
         {course.weather && (
           <div style={{

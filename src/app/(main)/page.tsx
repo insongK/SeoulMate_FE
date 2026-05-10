@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { VIBES } from '@/constants/vibe'
 import { REGIONS, QUICK_REGIONS } from '@/constants/region'
 import { PRESETS, type Preset } from '@/constants/preset'
+import { useAuthStore } from '@/stores/auth.store'
 
 /* ── Icons ───────────────────────────────────────────────────── */
 function IconSearch({ size = 18 }: { size?: number }) {
@@ -132,7 +133,8 @@ function formatBudget(v: number) {
    Main Page
    ══════════════════════════════════════════════════════════════ */
 export default function HomePage() {
-  const router = useRouter()
+  const router  = useRouter()
+  const user    = useAuthStore(s => s.user)
 
   /* ── Theme (light mode default) ─────────────────────────── */
   const [isDark, setIsDark] = useState(false)
@@ -471,30 +473,69 @@ export default function HomePage() {
                 transition: 'color .35s',
               }}>SeoulMate</span>
             </div>
-            {/* Theme toggle */}
-            <button
-              onClick={() => {
-                const next = !isDark
-                setIsDark(next)
-                localStorage.setItem('seoulmate-theme', next ? 'dark' : 'light')
-              }}
-              aria-label={isDark ? '라이트 모드로 전환' : '다크 모드로 전환'}
-              style={{
-                width: 36, height: 36, borderRadius: '50%',
-                border: scrolled
-                  ? '1px solid rgba(232,101,26,.25)'
-                  : '1px solid rgba(255,255,255,.28)',
-                background: scrolled
-                  ? 'rgba(232,101,26,.07)'
-                  : 'rgba(255,255,255,.10)',
-                color: navIconColor,
-                cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                transition: 'all .35s',
-              }}
-            >
-              {isDark ? <IconSun size={15}/> : <IconMoon size={14}/>}
-            </button>
+            {/* Right controls */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {/* Theme toggle */}
+              <button
+                onClick={() => {
+                  const next = !isDark
+                  setIsDark(next)
+                  localStorage.setItem('seoulmate-theme', next ? 'dark' : 'light')
+                }}
+                aria-label={isDark ? '라이트 모드로 전환' : '다크 모드로 전환'}
+                style={{
+                  width: 36, height: 36, borderRadius: '50%',
+                  border: scrolled
+                    ? '1px solid rgba(232,101,26,.25)'
+                    : '1px solid rgba(255,255,255,.28)',
+                  background: scrolled
+                    ? 'rgba(232,101,26,.07)'
+                    : 'rgba(255,255,255,.10)',
+                  color: navIconColor,
+                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all .35s',
+                }}
+              >
+                {isDark ? <IconSun size={15}/> : <IconMoon size={14}/>}
+              </button>
+
+              {/* Profile avatar */}
+              <button
+                onClick={() => router.push('/profile')}
+                aria-label="프로필"
+                style={{
+                  width: 36, height: 36, borderRadius: '50%',
+                  border: 'none',
+                  background: user
+                    ? 'var(--grad-amber)'
+                    : (scrolled
+                        ? 'rgba(232,101,26,.07)'
+                        : 'rgba(255,255,255,.10)'),
+                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all .35s',
+                  fontSize: 13, fontWeight: 700, letterSpacing: '-.5px',
+                  color: user ? 'var(--fg-on-primary)' : navIconColor,
+                  boxShadow: user ? '0 2px 10px rgba(245,166,35,.35)' : 'none',
+                  outline: scrolled && !user ? `1px solid rgba(232,101,26,.25)` : 'none',
+                  outlineOffset: -1,
+                  flexShrink: 0,
+                }}
+              >
+                {user ? (
+                  user.nickname.slice(0, 2)
+                ) : (
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" strokeWidth="1.8"
+                    strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="8" r="4"/>
+                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                  </svg>
+                )}
+              </button>
+
+            </div>
           </div>
         </nav>
 

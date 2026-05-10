@@ -24,7 +24,9 @@ function applyFilters(courses: Course[], filter: FilterState): Course[] {
     result = result.filter(c => c.transportation === filter.transportation)
   }
 
-  if (filter.sort === 'budget') {
+  if (filter.sort === 'recommended') {
+    result.sort((a, b) => (a.recommendationRank ?? 99) - (b.recommendationRank ?? 99))
+  } else if (filter.sort === 'budget') {
     result.sort((a, b) => a.totalBudget - b.totalBudget)
   } else if (filter.sort === 'congestion') {
     const order: Record<string, number> = { low: 0, medium: 1, high: 2, unknown: 3 }
@@ -232,10 +234,11 @@ function ResultPageInner() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [filterOpen, setFilterOpen] = useState(false)
 
-  const [courses, setCourses]   = useState<Course[]>([])
-  const [loading, setLoading]   = useState(true)
-  const [error, setError]       = useState<string | null>(null)
-  const [fetchKey, setFetchKey] = useState(0)
+  const [courses, setCourses]                     = useState<Course[]>([])
+  const [recommendedCourseId, setRecommendedId]   = useState<string | undefined>()
+  const [loading, setLoading]                     = useState(true)
+  const [error, setError]                         = useState<string | null>(null)
+  const [fetchKey, setFetchKey]                   = useState(0)
 
   /* read theme from localStorage */
   useEffect(() => {
@@ -298,9 +301,10 @@ function ResultPageInner() {
       try {
         const raw = sessionStorage.getItem(cacheKey)
         if (raw) {
-          const { courses: cached, ts } = JSON.parse(raw)
+          const { courses: cached, recommendedCourseId: cachedId, ts } = JSON.parse(raw)
           if (Date.now() - ts < CACHE_TTL) {
             setCourses(cached)
+            setRecommendedId(cachedId)
             setLoading(false)
             return
           }
@@ -319,8 +323,13 @@ function ResultPageInner() {
         query:    searchParams.get('query') ?? undefined,
       })
       setCourses(data.courses)
+      setRecommendedId(data.recommendedCourseId)
       try {
-        sessionStorage.setItem(cacheKey, JSON.stringify({ courses: data.courses, ts: Date.now() }))
+        sessionStorage.setItem(cacheKey, JSON.stringify({
+          courses: data.courses,
+          recommendedCourseId: data.recommendedCourseId,
+          ts: Date.now(),
+        }))
       } catch { /* 저장 실패는 무시 */ }
     } catch (e) {
       setError(e instanceof Error ? e.message : '코스를 불러오는 데 실패했어요.')

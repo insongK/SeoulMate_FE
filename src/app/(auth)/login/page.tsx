@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import styles from './login.module.css'
 import { login, loginWithKakao, loginWithGoogle } from '@/lib/auth'
 import { useAuthSubmit } from '@/hooks/use-auth-submit'
@@ -135,7 +135,7 @@ const PARTICLES = [
 
 /* ── Component ─────────────────────────────────────────────── */
 
-export default function LoginPage() {
+function LoginPageInner() {
   const { loading, error, submit } = useAuthSubmit()
 
   const [showPw, setShowPw]         = useState(false)
@@ -784,5 +784,13 @@ export default function LoginPage() {
         </div>
       </div>
     </>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginPageInner />
+    </Suspense>
   )
 }

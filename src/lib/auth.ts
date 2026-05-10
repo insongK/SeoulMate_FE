@@ -4,26 +4,41 @@ const BASE = 'https://api.seoulmate.my/api/auth'
 const ACCESS_KEY  = 'seoulmate-token'
 const REFRESH_KEY = 'seoulmate-refresh-token'
 
+const ACCESS_MAX_AGE  = 60 * 60           // 1h  (액세스 토큰)
+const REFRESH_MAX_AGE = 60 * 60 * 24 * 7  // 7d  (리프레시 토큰)
+
+/* ── Cookie helpers ────────────────────────────────────────────── */
+
+function setCookie(name: string, value: string, maxAge: number): void {
+  // localhost(HTTP)에서는 Secure 생략, 배포(HTTPS)에서는 추가
+  const secure = location.protocol === 'https:' ? '; Secure' : ''
+  document.cookie =
+    `${name}=${encodeURIComponent(value)}; path=/; SameSite=Strict; Max-Age=${maxAge}${secure}`
+}
+
+function getCookie(name: string): string | null {
+  if (typeof window === 'undefined') return null
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`))
+  return match ? decodeURIComponent(match[1]) : null
+}
+
+function deleteCookie(name: string): void {
+  document.cookie = `${name}=; path=/; Max-Age=0`
+}
+
 /* ── Token helpers ─────────────────────────────────────────────── */
 
-export function getAccessToken(): string | null {
-  if (typeof window === 'undefined') return null
-  return localStorage.getItem(ACCESS_KEY)
-}
-
-export function getRefreshToken(): string | null {
-  if (typeof window === 'undefined') return null
-  return localStorage.getItem(REFRESH_KEY)
-}
+export function getAccessToken(): string | null  { return getCookie(ACCESS_KEY) }
+export function getRefreshToken(): string | null { return getCookie(REFRESH_KEY) }
 
 export function saveTokens(accessToken: string, refreshToken: string): void {
-  localStorage.setItem(ACCESS_KEY, accessToken)
-  localStorage.setItem(REFRESH_KEY, refreshToken)
+  setCookie(ACCESS_KEY,  accessToken,  ACCESS_MAX_AGE)
+  setCookie(REFRESH_KEY, refreshToken, REFRESH_MAX_AGE)
 }
 
 export function clearTokens(): void {
-  localStorage.removeItem(ACCESS_KEY)
-  localStorage.removeItem(REFRESH_KEY)
+  deleteCookie(ACCESS_KEY)
+  deleteCookie(REFRESH_KEY)
 }
 
 /* ── API helpers ───────────────────────────────────────────────── */

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import styles from './signup.module.css'
 import { signup } from '@/lib/auth'
 import { useAuthSubmit } from '@/hooks/use-auth-submit'
@@ -125,7 +125,7 @@ const PARTICLES = [
 
 /* ── Component ─────────────────────────────────────────────── */
 
-export default function SignupPage() {
+function SignupPageInner() {
   const { loading, error, submit } = useAuthSubmit()
 
   const [nickname, setNickname]             = useState('')
@@ -727,5 +727,13 @@ export default function SignupPage() {
         </div>
       </div>
     </>
+  )
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense>
+      <SignupPageInner />
+    </Suspense>
   )
 }

@@ -1,6 +1,7 @@
 import type { Weather } from '@/types/course.types'
 
-export function skyToEmoji(skyStatus: string): string {
+export function skyToEmoji(skyStatus: string | null | undefined): string {
+  if (!skyStatus) return '🌤️'
   if (skyStatus.includes('맑음'))     return '☀️'
   if (skyStatus.includes('소나기'))   return '⛈️'
   if (skyStatus.includes('비/눈') || skyStatus.includes('눈/비')) return '🌨️'
