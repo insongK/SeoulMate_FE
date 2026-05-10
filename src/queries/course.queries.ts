@@ -151,6 +151,10 @@ function mapApiCourseDetail(raw: ApiCourseDetail): Course {
 
 /* ── API helpers ──────────────────────────────────────────────── */
 
+function numericId(id: string): string {
+  return id.startsWith('crs_') ? id.slice(4) : id
+}
+
 async function throwOnError(res: Response): Promise<void> {
   if (res.ok) return
   const body = await res.json().catch(() => ({ message: undefined }))
@@ -213,7 +217,7 @@ export async function getSavedCourses(page = 1, pageSize = 10): Promise<CourseLi
 }
 
 export async function saveCourse(id: string, notes?: string): Promise<void> {
-  const res = await apiFetch(`${COURSE_BASE}/${id}/save`, {
+  const res = await apiFetch(`${COURSE_BASE}/${numericId(id)}/save`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(notes ? { notes } : {}),
@@ -223,7 +227,7 @@ export async function saveCourse(id: string, notes?: string): Promise<void> {
 }
 
 export async function unsaveCourse(id: string): Promise<void> {
-  const res = await apiFetch(`${COURSE_BASE}/${id}/save`, { method: 'DELETE' })
+  const res = await apiFetch(`${COURSE_BASE}/${numericId(id)}/save`, { method: 'DELETE' })
   await throwOnError(res)
 }
 
