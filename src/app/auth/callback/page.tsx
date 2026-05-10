@@ -3,22 +3,35 @@
 import { useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { saveTokens } from '@/lib/auth'
+import { useAuthStore } from '@/stores/auth.store'
+import { getMe } from '@/queries/user.queries'
 
 function CallbackInner() {
   const router       = useRouter()
   const searchParams = useSearchParams()
+  const setUser      = useAuthStore(s => s.setUser)
 
   useEffect(() => {
     const accessToken  = searchParams.get('accessToken')
     const refreshToken = searchParams.get('refreshToken')
 
-    if (accessToken && refreshToken) {
-      saveTokens(accessToken, refreshToken)
-      router.replace('/')
-    } else {
+    if (!accessToken || !refreshToken) {
       router.replace('/login')
+      return
     }
-  }, [router, searchParams])
+
+    saveTokens(accessToken, refreshToken)
+
+    getMe()
+      .then(profile => {
+        setUser(profile)
+        router.replace('/')
+      })
+      .catch(() => {
+        // 토큰은 저장됐으므로 일단 메인으로 이동 (user는 null 상태)
+        router.replace('/')
+      })
+  }, [router, searchParams, setUser])
 
   return (
     <div style={{
