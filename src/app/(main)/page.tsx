@@ -59,6 +59,15 @@ function IconRefresh({ size = 15 }: { size?: number }) {
     </svg>
   )
 }
+function IconHistory({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+      <path d="M3 3v5h5"/>
+      <path d="M12 7v5l3.5 2"/>
+    </svg>
+  )
+}
 
 /* ── Web Speech API (inline hook) ────────────────────────────── */
 function useSpeechRecognition(onResult: (text: string) => void) {
@@ -415,7 +424,10 @@ export default function HomePage() {
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
             {/* Logo */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div
+              onClick={() => router.push('/')}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
+            >
               <img src="/favicon-32x32.png" width={26} height={26} alt="" style={{ display: 'block' }}/>
               <span style={{
                 fontSize: 18, fontWeight: 800, letterSpacing: '-.02em',
@@ -425,6 +437,27 @@ export default function HomePage() {
             </div>
             {/* Right controls */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {/* History */}
+              <button
+                onClick={() => router.push('/history')}
+                aria-label="내 코스"
+                style={{
+                  width: 36, height: 36, borderRadius: '50%',
+                  border: scrolled
+                    ? '1px solid rgba(232,101,26,.25)'
+                    : '1px solid rgba(255,255,255,.28)',
+                  background: scrolled
+                    ? 'rgba(232,101,26,.07)'
+                    : 'rgba(255,255,255,.10)',
+                  color: navIconColor,
+                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all .35s',
+                }}
+              >
+                <IconHistory size={15}/>
+              </button>
+
               {/* Theme toggle */}
               <button
                 onClick={() => {
