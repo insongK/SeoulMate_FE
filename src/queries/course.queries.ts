@@ -228,6 +228,7 @@ export async function saveCourse(id: string, notes?: string): Promise<void> {
 
 export async function unsaveCourse(id: string): Promise<void> {
   const res = await apiFetch(`${COURSE_BASE}/${numericId(id)}/save`, { method: 'DELETE' })
+  if (res.status === 404) return  // 이미 저장 안 됨 → 성공으로 처리
   await throwOnError(res)
 }
 
