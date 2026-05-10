@@ -123,12 +123,12 @@ const DURATION_API_MAP: Record<string, string> = {
 }
 const PURPOSES  = ['데이트', '친구', '가족', '혼자', '비즈니스']
 const BUDGET_MIN = 0
-const BUDGET_MAX = 200000
+const BUDGET_MAX = 205000   // 200,000 = ₩200,000 / 205,000 = ₩200,000+
 const QUICK_TAGS = ['한강 야경', '성수 카페', '이태원 펍', '북촌 산책']
 
 
 function formatBudget(v: number) {
-  return v >= BUDGET_MAX ? '₩200,000+' : `₩${v.toLocaleString()}`
+  return v > 200000 ? '₩200,000+' : `₩${v.toLocaleString()}`
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -198,7 +198,7 @@ export default function HomePage() {
     const params = new URLSearchParams()
     params.set('vibes',    form.vibes.join(','))
     params.set('region',   form.region)
-    params.set('budget',   String(form.budget))
+    params.set('budget',   String(form.budget > 200000 ? 200001 : form.budget))
     params.set('duration', DURATION_API_MAP[form.duration] ?? form.duration)
     if (form.purpose)  params.set('purpose', form.purpose)
     if (heroSearch)    params.set('query',   heroSearch)
