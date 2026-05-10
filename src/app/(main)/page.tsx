@@ -746,7 +746,7 @@ export default function HomePage() {
                     }}/>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 10, color: 'var(--fg-3)', fontFamily: 'var(--font-mono)' }}>
-                    <span>₩10,000</span><span>₩200,000+</span>
+                    <span>₩0</span><span>₩200,000+</span>
                   </div>
                 </div>
 
