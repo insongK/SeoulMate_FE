@@ -2,7 +2,7 @@
 
 import { useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { saveTokens } from '@/lib/auth'
+import { saveAccessToken } from '@/lib/auth'
 import { useAuthStore } from '@/stores/auth.store'
 import { getMe } from '@/queries/user.queries'
 
@@ -12,15 +12,14 @@ function CallbackInner() {
   const setUser      = useAuthStore(s => s.setUser)
 
   useEffect(() => {
-    const accessToken  = searchParams.get('accessToken')
-    const refreshToken = searchParams.get('refreshToken')
+    const accessToken = searchParams.get('accessToken')
 
-    if (!accessToken || !refreshToken) {
+    if (!accessToken) {
       router.replace('/login')
       return
     }
 
-    saveTokens(accessToken, refreshToken)
+    saveAccessToken(accessToken)
 
     getMe()
       .then(profile => {

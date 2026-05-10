@@ -1,5 +1,4 @@
-import { getAccessToken, getRefreshToken, saveTokens, clearTokens } from '@/lib/auth'
-import type { AuthResponse } from '@/types/user.types'
+import { getAccessToken, saveAccessToken, clearTokens } from '@/lib/auth'
 
 const AUTH_BASE = 'https://api.seoulmate.my/api/auth'
 
@@ -7,20 +6,17 @@ let isRefreshing = false
 let refreshQueue: Array<(token: string) => void> = []
 
 async function doRefresh(): Promise<string> {
-  const refreshToken = getRefreshToken()
-  if (!refreshToken) throw new Error('로그인이 필요해요.')
-
+  // refreshToken은 HttpOnly 쿠키로 관리되므로 credentials: 'include'로 자동 전송
   const res = await fetch(`${AUTH_BASE}/refresh`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ refreshToken }),
+    credentials: 'include',
   })
   if (!res.ok) {
     clearTokens()
     throw new Error('세션이 만료됐어요. 다시 로그인해주세요.')
   }
-  const data: AuthResponse = await res.json()
-  saveTokens(data.accessToken, data.refreshToken)
+  const data = await res.json() as { accessToken: string }
+  saveAccessToken(data.accessToken)
   return data.accessToken
 }
 

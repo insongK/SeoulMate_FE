@@ -36,6 +36,10 @@ export function saveTokens(accessToken: string, refreshToken: string): void {
   setCookie(REFRESH_KEY, refreshToken, REFRESH_MAX_AGE)
 }
 
+export function saveAccessToken(accessToken: string): void {
+  setCookie(ACCESS_KEY, accessToken, ACCESS_MAX_AGE)
+}
+
 export function clearTokens(): void {
   deleteCookie(ACCESS_KEY)
   deleteCookie(REFRESH_KEY)
@@ -74,20 +78,23 @@ export async function signup(params: SignupParams): Promise<AuthResponse> {
 }
 
 export async function logout(): Promise<void> {
-  const refreshToken = getRefreshToken()
   clearTokens()
-  if (!refreshToken) return
   fetch(`${BASE}/logout`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ refreshToken }),
+    credentials: 'include',
   }).catch(() => {})
 }
 
-export async function refreshTokens(): Promise<AuthResponse> {
-  const refreshToken = getRefreshToken()
-  if (!refreshToken) throw new Error('로그인이 필요해요.')
-  return post<AuthResponse>('/refresh', { refreshToken })
+export async function refreshTokens(): Promise<{ accessToken: string }> {
+  const res = await fetch(`${BASE}/refresh`, {
+    method: 'POST',
+    credentials: 'include',
+  })
+  if (!res.ok) {
+    clearTokens()
+    throw new Error('세션이 만료됐어요. 다시 로그인해주세요.')
+  }
+  return res.json() as Promise<{ accessToken: string }>
 }
 
 /* ── OAuth ─────────────────────────────────────────────────────── */
