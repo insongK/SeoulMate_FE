@@ -19,8 +19,6 @@ const NAV_ITEMS = [
   { id: 'logout-section',label: '로그아웃' },
 ]
 
-const MAX_VIBES = 10
-
 /* ── Shared styles ────────────────────────────────────────────── */
 
 const card: React.CSSProperties = {
@@ -33,28 +31,6 @@ const card: React.CSSProperties = {
 
 const cardTitle: React.CSSProperties = {
   fontSize: 15, fontWeight: 600, marginBottom: 14,
-}
-
-const inlineInput: React.CSSProperties = {
-  padding:      '6px 14px',
-  borderRadius: 'var(--radius-pill)',
-  border:       '1px solid var(--border-amber)',
-  background:   'var(--surface-2)',
-  color:        'var(--fg)',
-  fontSize:     13,
-  outline:      'none',
-  width:        110,
-}
-
-const addChip: React.CSSProperties = {
-  padding:      '6px 14px',
-  borderRadius: 'var(--radius-pill)',
-  border:       '1px dashed var(--border-strong)',
-  background:   'transparent',
-  color:        'var(--fg-2)',
-  fontSize:     13,
-  cursor:       'pointer',
-  lineHeight:   1,
 }
 
 /* ── Page component ───────────────────────────────────────────── */
@@ -72,11 +48,6 @@ export default function ProfilePage() {
   /* preferences form */
   const [vibes,     setVibes]     = useState<string[]>([])
   const [origVibes, setOrigVibes] = useState<string[]>([])
-
-  /* inline chip inputs */
-  const [showVibeInput, setShowVibeInput] = useState(false)
-  const [vibeInput,     setVibeInput]     = useState('')
-  const vibeEnterRef = useRef(false)
 
   /* ui */
   const [saving,           setSaving]           = useState(false)
@@ -161,17 +132,8 @@ export default function ProfilePage() {
 
   function toggleVibe(v: string) {
     setVibes(prev =>
-      prev.includes(v)
-        ? prev.filter(x => x !== v)
-        : prev.length < MAX_VIBES ? [...prev, v] : prev
+      prev.includes(v) ? prev.filter(x => x !== v) : [...prev, v]
     )
-  }
-
-  function commitVibe() {
-    const v = vibeInput.trim()
-    if (v) setVibes(prev => prev.includes(v) || prev.length >= MAX_VIBES ? prev : [...prev, v])
-    setVibeInput('')
-    setShowVibeInput(false)
   }
 
   async function handleSave() {
@@ -438,33 +400,6 @@ export default function ProfilePage() {
                           {VIBES.map(v => (
                             <Chip key={v} label={v} active={vibes.includes(v)} onClick={() => toggleVibe(v)} />
                           ))}
-                          {vibes
-                            .filter(v => !(VIBES as readonly string[]).includes(v))
-                            .map(v => (
-                              <Chip key={v} label={v} active onClick={() => toggleVibe(v)} />
-                            ))}
-                          {showVibeInput ? (
-                            <input
-                              autoFocus
-                              value={vibeInput}
-                              onChange={e => setVibeInput(e.target.value)}
-                              onKeyDown={e => {
-                                if (e.key === 'Enter')  { vibeEnterRef.current = true; commitVibe() }
-                                if (e.key === 'Escape') { setVibeInput(''); setShowVibeInput(false) }
-                              }}
-                              onBlur={() => {
-                                if (!vibeEnterRef.current) commitVibe()
-                                vibeEnterRef.current = false
-                              }}
-                              maxLength={20}
-                              placeholder="직접 입력"
-                              style={inlineInput}
-                            />
-                          ) : vibes.length < MAX_VIBES ? (
-                            <button onClick={() => setShowVibeInput(true)} style={addChip}>
-                              + 직접 입력
-                            </button>
-                          ) : null}
                         </div>
                       </div>
 

@@ -3,8 +3,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { VIBES } from '@/constants/vibe'
-import { REGIONS, QUICK_REGIONS } from '@/constants/region'
-import { PRESETS, type Preset } from '@/constants/preset'
 import { useAuthStore } from '@/stores/auth.store'
 
 /* ── Icons ───────────────────────────────────────────────────── */
@@ -119,11 +117,6 @@ const BUDGET_MIN = 10000
 const BUDGET_MAX = 200000
 const QUICK_TAGS = ['한강 야경', '성수 카페', '이태원 펍', '북촌 산책']
 
-const TONE_GRAD: Record<string, string> = {
-  sunset: 'linear-gradient(135deg,#E8651A 0%,#C94F2C 100%)',
-  night:  'linear-gradient(135deg,#2C3E6E 0%,#0D0D0D 100%)',
-  warm:   'linear-gradient(135deg,#F59060 0%,#E8651A 100%)',
-}
 
 function formatBudget(v: number) {
   return v >= BUDGET_MAX ? '₩200,000+' : `₩${v.toLocaleString()}`
@@ -159,8 +152,6 @@ export default function HomePage() {
     vibes: [], region: '', budget: 80000, duration: '', purpose: '',
   })
   const [regionQuery, setRegionQuery] = useState('')
-  const [showDropdown, setShowDropdown] = useState(false)
-  const [activePreset, setActivePreset] = useState<string | null>(null)
 
   /*
    * heroSearch is COMPLETELY INDEPENDENT from form.region / regionQuery.
@@ -205,25 +196,10 @@ export default function HomePage() {
     router.push(`/result?${params.toString()}`)
   }
 
-  /* ── Preset click ────────────────────────────────────────── */
-  const applyPreset = (preset: Preset) => {
-    setForm(f => ({
-      ...f,
-      vibes:    preset.vibes,
-      region:   preset.region,
-      budget:   preset.budget,
-      duration: preset.duration,
-    }))
-    setRegionQuery(preset.region)
-    setActivePreset(preset.id)
-    scrollToForm()
-  }
-
   /* ── Reset form ──────────────────────────────────────────── */
   const resetForm = () => {
     setForm({ vibes: [], region: '', budget: 80000, duration: '', purpose: '' })
     setRegionQuery('')
-    setActivePreset(null)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -234,11 +210,6 @@ export default function HomePage() {
       vibes: f.vibes.includes(v) ? f.vibes.filter(x => x !== v) : [...f.vibes, v],
     }))
 
-  const setRegion = (r: string) => {
-    setForm(f => ({ ...f, region: r }))
-    setRegionQuery(r)
-    setShowDropdown(false)
-  }
 
   /* ── Derived ─────────────────────────────────────────────── */
   const filledCount = [
@@ -250,9 +221,6 @@ export default function HomePage() {
 
   const canSubmit = form.vibes.length > 0 && form.region.length > 0 && form.duration.length > 0
 
-  const regionSuggestions = regionQuery.length > 0
-    ? REGIONS.filter(r => r.includes(regionQuery) && r !== form.region)
-    : []
 
   const sliderPct = ((form.budget - BUDGET_MIN) / (BUDGET_MAX - BUDGET_MIN)) * 100
 
@@ -331,15 +299,6 @@ export default function HomePage() {
           color: #C94F2C;
         }
 
-        /* Preset card (hero) */
-        .preset-card {
-          transition: transform .3s ease, box-shadow .3s;
-          cursor: pointer;
-        }
-        .preset-card:hover {
-          transform: scale(1.03);
-          box-shadow: 0 20px 60px rgba(0,0,0,.55) !important;
-        }
 
         /* Vibe/purpose chips (form section) */
         .chip-btn { transition: all .18s var(--ease-out); }
@@ -392,8 +351,6 @@ export default function HomePage() {
         }
         .cta-hero:active { transform: translateY(0); }
 
-        /* Preset grid (standalone section, 4-col → 2-col → 1-col) */
-        .preset-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
 
         /* Hero overlay: theme-aware (95deg → alpha 0 at right edge, no white-bar artifact) */
         .hero-overlay { position: absolute; inset: 0; }
@@ -416,17 +373,14 @@ export default function HomePage() {
         /* Responsive */
         @media (max-width: 1100px) {
           .hero-grid { grid-template-columns: 1fr 360px !important; gap: 24px !important; }
-          .preset-grid { grid-template-columns: repeat(2,1fr) !important; }
         }
         @media (max-width: 900px) {
           .hero-grid { grid-template-columns: 1fr !important; }
           .form-grid  { grid-template-columns: 1fr !important; }
           .hero-right { display: block !important; margin-top: 32px; max-height: 60vh; overflow-y: auto; }
-          .preset-grid { grid-template-columns: repeat(2,1fr) !important; }
         }
         @media (max-width: 520px) {
           .hero-grid { min-height: auto !important; }
-          .preset-grid { grid-template-columns: repeat(2,1fr) !important; }
         }
 
         /* Vibe chips — horizontal scroll, no wrap */
@@ -439,7 +393,7 @@ export default function HomePage() {
         .vibe-scroll button { flex-shrink: 0; }
         @media (prefers-reduced-motion: reduce) {
           .h-e1,.h-e2,.h-e3,.h-e4,.h-e5 { animation: none !important; }
-          .preset-card,.chip-btn,.dur-card,.cta-btn,.cta-hero { transition: none !important; }
+          .chip-btn,.dur-card,.cta-btn,.cta-hero { transition: none !important; }
         }
       `}</style>
 
@@ -757,9 +711,7 @@ export default function HomePage() {
                       ref={regionRef}
                       type="text"
                       value={regionQuery}
-                      onChange={e => { const v = e.target.value; setRegionQuery(v); setForm(f => ({ ...f, region: v })); setShowDropdown(true) }}
-                      onFocus={() => setShowDropdown(true)}
-                      onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+                      onChange={e => { const v = e.target.value; setRegionQuery(v); setForm(f => ({ ...f, region: v })) }}
                       placeholder="예: 강남, 홍대"
                       autoComplete="off"
                       style={{
@@ -773,34 +725,6 @@ export default function HomePage() {
                         transition: 'all .2s',
                       }}
                     />
-                    {showDropdown && regionSuggestions.length > 0 && (
-                      <div style={{
-                        position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0,
-                        background: 'var(--surface)', border: '1px solid var(--border)',
-                        borderRadius: 10, overflow: 'hidden',
-                        boxShadow: 'var(--shadow-card)', zIndex: 20,
-                      }}>
-                        {regionSuggestions.slice(0, 4).map(r => (
-                          <div key={r} className="drop-item" onMouseDown={() => setRegion(r)} style={{
-                            padding: '9px 12px', display: 'flex', alignItems: 'center', gap: 6,
-                            fontSize: 13, color: 'var(--fg)', borderBottom: '1px solid var(--border)',
-                          }}>
-                            <span style={{ color: 'var(--primary)' }}><IconPin size={12}/></span>{r}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <div style={{ display: 'flex', gap: 5, marginTop: 6, flexWrap: 'wrap' }}>
-                    {QUICK_REGIONS.map(r => (
-                      <button key={r} className="chip-btn" onClick={() => setRegion(r)} style={{
-                        padding: '4px 10px', borderRadius: 9999,
-                        border: form.region === r ? '1.5px solid var(--primary)' : '1.5px solid var(--border)',
-                        background: form.region === r ? 'var(--surface-2)' : (isDark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.04)'),
-                        color: form.region === r ? 'var(--primary)' : 'var(--fg-2)',
-                        fontFamily: 'inherit', fontWeight: form.region === r ? 600 : 500, fontSize: 12, cursor: 'pointer',
-                      }}>{r}</button>
-                    ))}
                   </div>
                 </div>
 
@@ -936,90 +860,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ══ MOOD PRESETS SECTION ════════════════════════════════ */}
-        <section style={{
-          background: 'var(--bg)',
-          paddingTop: 'clamp(48px,6vh,72px)',
-          paddingBottom: 'clamp(32px,4vh,52px)',
-        }}>
-          <div style={{
-            maxWidth: 1280, margin: '0 auto',
-            padding: '0 var(--content-padding)',
-          }}>
-            <div style={{
-              display: 'flex', alignItems: 'baseline',
-              justifyContent: 'space-between', marginBottom: 20,
-            }}>
-              <span style={{
-                fontSize: 20, fontWeight: 700, color: 'var(--fg)', letterSpacing: '-.01em',
-              }}>
-                오늘의 무드
-              </span>
-              <span style={{ fontSize: 13, color: 'var(--fg-3)' }}>
-                {new Date().toLocaleDateString('ko-KR', { weekday: 'long' })}
-              </span>
-            </div>
-            <div className="preset-grid">
-              {PRESETS.map(preset => (
-                <button
-                  key={preset.id}
-                  className="preset-card"
-                  onClick={() => applyPreset(preset)}
-                  style={{
-                    aspectRatio: '4/3',
-                    borderRadius: 20,
-                    border: activePreset === preset.id
-                      ? '2px solid var(--primary)'
-                      : '1px solid var(--border)',
-                    overflow: 'hidden',
-                    background: TONE_GRAD[preset.tone],
-                    padding: 16, textAlign: 'left',
-                    cursor: 'pointer', fontFamily: 'inherit',
-                    position: 'relative',
-                    boxShadow: activePreset === preset.id
-                      ? '0 0 0 4px rgba(232,101,26,.25)'
-                      : '0 8px 24px rgba(0,0,0,.40)',
-                  }}
-                >
-                  <div style={{
-                    position: 'absolute', inset: 0,
-                    backgroundImage: "url('/seoul-bg.jpg')",
-                    backgroundSize: 'cover', backgroundPosition: 'center',
-                    opacity: .38, mixBlendMode: 'overlay',
-                  }}/>
-                  <div style={{
-                    position: 'absolute', inset: 0,
-                    background: 'linear-gradient(0deg,rgba(13,13,13,.78) 0%,rgba(13,13,13,0) 55%)',
-                  }}/>
-                  <div style={{
-                    position: 'relative', height: '100%',
-                    display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-                    color: '#fff',
-                  }}>
-                    <div style={{ display: 'flex', gap: 4, marginBottom: 6, flexWrap: 'wrap' }}>
-                      {preset.vibes.slice(0, 2).map(v => (
-                        <span key={v} style={{
-                          fontSize: 10, padding: '2px 7px', borderRadius: 9999,
-                          background: 'rgba(255,255,255,.22)', fontWeight: 600,
-                        }}>{v}</span>
-                      ))}
-                    </div>
-                    <div style={{ fontSize: 11, opacity: .72, marginBottom: 3 }}>{preset.sub}</div>
-                    <div style={{ fontSize: 15, fontWeight: 800, letterSpacing: '-.01em', lineHeight: 1.2 }}>
-                      {preset.title}
-                    </div>
-                    <div style={{
-                      marginTop: 6, fontSize: 11, opacity: .62,
-                      fontFamily: 'var(--font-mono)',
-                    }}>
-                      {formatBudget(preset.budget)} · {preset.duration}
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
 
 
       </div>
