@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { getMyCourses, unsaveCourse } from '@/queries/course.queries'
 import { MapThumbnail } from '@/components/map/map-thumbnail'
+import { SiteNav, SITE_NAV_H } from '@/components/layout/site-nav'
 import { formatKRW } from '@/utils/format'
 import type { Course, CongestionLevel } from '@/types/course.types'
 
@@ -465,11 +466,13 @@ export default function HistoryPage() {
     <div style={{ minHeight: '100vh', background: 'var(--bg)', fontFamily: 'var(--font-sans)' }}>
       <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}@keyframes fadeUp{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}`}</style>
 
+      <SiteNav />
+
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
 
       {/* ── Sticky header ─────────────────────────────────────── */}
       <div style={{
-        position: 'sticky', top: 0, zIndex: 30,
+        position: 'sticky', top: SITE_NAV_H, zIndex: 30,
         background: 'var(--overlay)',
         backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
         borderBottom: '1px solid var(--border)',

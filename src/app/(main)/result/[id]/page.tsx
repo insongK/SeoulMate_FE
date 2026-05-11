@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { loadKakaoMaps } from '@/lib/kakao'
 import { getMidpoint, totalDistance, walkingMinutes } from '@/utils/map'
 import { getCourse, toggleSaveCourse } from '@/queries/course.queries'
+import { SiteNav, SITE_NAV_H } from '@/components/layout/site-nav'
 import { WeatherWidget } from '@/components/course/weather-widget'
 import type { Course, Congestion } from '@/types/course.types'
 
@@ -310,23 +311,26 @@ export default function ResultDetailPage() {
         .card-expand { transition: max-height .35s var(--ease-out), opacity .25s; overflow:hidden; }
         @media (max-width: 900px) {
           .detail-layout { flex-direction: column !important; height: auto !important; overflow: visible !important; }
-          .detail-left  { width: 100% !important; height: auto !important; position: relative !important; }
+          .detail-left  { width: 100% !important; height: auto !important; position: relative !important; top: 0 !important; }
           .detail-map   { height: 42vh !important; }
           .detail-right { height: auto !important; overflow-y: visible !important; }
         }
       `}</style>
 
+      <SiteNav />
+
       {/* ── Layout ─────────────────────────────────────────────── */}
       <div className="detail-layout" style={{
-        display: 'flex', height: '100vh', overflow: 'hidden',
+        display: 'flex', height: `calc(100vh - ${SITE_NAV_H}px)`, overflow: 'hidden',
+        marginTop: SITE_NAV_H,
         background: 'var(--bg)', fontFamily: 'var(--font-sans)',
       }}>
 
         {/* ══ LEFT PANEL ══════════════════════════════════════ */}
         <div className="detail-left" style={{
-          width: '55%', height: '100vh', display: 'flex', flexDirection: 'column',
+          width: '55%', height: `calc(100vh - ${SITE_NAV_H}px)`, display: 'flex', flexDirection: 'column',
           borderRight: '1px solid var(--border)',
-          position: 'sticky', top: 0,
+          position: 'sticky', top: SITE_NAV_H,
         }}>
 
           {/* Map area */}

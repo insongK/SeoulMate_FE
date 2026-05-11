@@ -6,6 +6,7 @@ import { CourseCard } from '@/components/course/course-card'
 import { CourseFilter } from '@/components/course/course-filter'
 import { CourseCardSkeleton } from '@/components/ui/skeleton'
 import { recommendCourses, toggleSaveCourse } from '@/queries/course.queries'
+import { SiteNav, SITE_NAV_H } from '@/components/layout/site-nav'
 import type { Course, FilterState, PlaceType } from '@/types/course.types'
 import { DEFAULT_FILTER } from '@/types/course.types'
 
@@ -378,9 +379,11 @@ function ResultPageInner() {
         .result-card-grid { animation: fade-up 0.4s var(--ease-out) both; }
       `}</style>
 
+      <SiteNav />
+
       {/* ── Page header ── */}
       <div style={{
-        position: 'sticky', top: 0, zIndex: 30,
+        position: 'sticky', top: SITE_NAV_H, zIndex: 30,
         background: 'var(--overlay)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
