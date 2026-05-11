@@ -392,20 +392,6 @@ function ResultPageInner() {
           height: 'var(--top-nav-h)',
           display: 'flex', alignItems: 'center', gap: 16,
         }}>
-          <a
-            href="/input"
-            aria-label="뒤로"
-            style={{
-              width: 40, height: 40, borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--border)',
-              background: 'var(--surface)',
-              color: 'var(--fg)', cursor: 'pointer', textDecoration: 'none',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 18, flexShrink: 0,
-            }}
-          >
-            ←
-          </a>
           <div style={{ flex: 1, minWidth: 0 }}>
             <h1 style={{ fontSize: 17, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--fg)', margin: 0 }}>
               추천 코스

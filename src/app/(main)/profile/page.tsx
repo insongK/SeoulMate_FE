@@ -13,7 +13,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 const NAV_ITEMS = [
   { id: 'preferences',   label: '선호 설정' },
-  { id: 'saved-courses', label: '저장한 코스' },
   { id: 'notifications', label: '알림 설정' },
   { id: 'security',      label: '계정 보안' },
   { id: 'logout-section',label: '로그아웃' },
@@ -284,15 +283,14 @@ export default function ProfilePage() {
 
                   {/* Stats */}
                   <div style={{
-                    display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)',
+                    display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)',
                     gap: 4, background: 'var(--surface-2)',
                     borderRadius: 'var(--radius-md)',
                     padding: '14px 8px', marginBottom: 16,
                   }}>
                     {[
-                      { label: '저장한 코스', value: profile?.savedCoursesCount ?? 0 },
-                      { label: '방문한 곳',   value: 0 },
-                      { label: '작성 리뷰',   value: 0 },
+                      { label: '방문한 곳', value: 0 },
+                      { label: '작성 리뷰', value: 0 },
                     ].map(({ label, value }) => (
                       <div key={label} style={{ textAlign: 'center' }}>
                         <p style={{ fontSize: 20, fontWeight: 700, color: 'var(--primary)' }}>{value}</p>
@@ -434,17 +432,6 @@ export default function ProfilePage() {
                       </div>
                     </div>
                   )}
-                </section>
-
-                {/* 저장한 코스 */}
-                <section
-                  id="saved-courses"
-                  ref={el => { sectionRefs.current['saved-courses'] = el }}
-                >
-                  <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>저장한 코스</h2>
-                  <div style={{ ...card, padding: '40px 20px', textAlign: 'center', color: 'var(--fg-3)', fontSize: 14 }}>
-                    저장한 코스가 여기에 표시돼요.
-                  </div>
                 </section>
 
                 {/* 알림 설정 */}
