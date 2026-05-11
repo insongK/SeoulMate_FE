@@ -319,7 +319,7 @@ export default function ResultDetailPage() {
         .card-expand { transition: max-height .35s var(--ease-out), opacity .25s; overflow:hidden; }
         @media (max-width: 900px) {
           .detail-layout { flex-direction: column !important; height: auto !important; overflow: visible !important; }
-          .detail-left  { width: 100% !important; height: auto !important; position: relative !important; top: 0 !important; flex-shrink: 0 !important; }
+          .detail-left  { width: 100% !important; height: auto !important; flex-shrink: 0 !important; }
           .detail-map   { height: 50vw !important; min-height: 240px !important; max-height: 360px !important; flex: none !important; }
           .detail-right { height: auto !important; overflow-y: visible !important; }
         }
@@ -329,16 +329,15 @@ export default function ResultDetailPage() {
 
       {/* ── Layout ─────────────────────────────────────────────── */}
       <div className="detail-layout" style={{
-        display: 'flex', height: `calc(100vh - ${SITE_NAV_H}px)`, overflow: 'hidden',
-        marginTop: SITE_NAV_H,
+        display: 'flex', height: '100vh', overflow: 'hidden',
+        paddingTop: SITE_NAV_H, boxSizing: 'border-box',
         background: 'var(--bg)', fontFamily: 'var(--font-sans)',
       }}>
 
         {/* ══ LEFT PANEL ══════════════════════════════════════ */}
         <div className="detail-left" style={{
-          width: '55%', height: `calc(100vh - ${SITE_NAV_H}px)`, display: 'flex', flexDirection: 'column',
+          width: '55%', display: 'flex', flexDirection: 'column',
           borderRight: '1px solid var(--border)',
-          position: 'sticky', top: SITE_NAV_H,
         }}>
 
           {/* Map area */}
@@ -401,7 +400,7 @@ export default function ResultDetailPage() {
 
         {/* ══ RIGHT PANEL ═════════════════════════════════════ */}
         <div className="detail-right" ref={rightRef} style={{
-          flex: 1, height: '100vh', overflowY: 'auto',
+          flex: 1, height: '100%', overflowY: 'auto',
           background: 'var(--bg)',
         }}>
           <div style={{ padding: '24px 28px 80px' }}>
@@ -417,11 +416,6 @@ export default function ResultDetailPage() {
                     fontSize: 11, fontWeight: 600,
                   }}>{v}</span>
                 ))}
-                <span style={{
-                  padding: '3px 10px', borderRadius: 'var(--radius-pill)',
-                  background: 'var(--surface-2)', color: 'var(--fg-3)',
-                  fontSize: 11, fontWeight: 500,
-                }}>📍 {course.region}</span>
               </div>
 
               <h1 style={{
