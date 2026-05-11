@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { getMyCourses, unsaveCourse } from '@/queries/course.queries'
+import { getMyCourses, getSavedCourses, saveCourse, unsaveCourse } from '@/queries/course.queries'
 import { MapThumbnail } from '@/components/map/map-thumbnail'
 import { SiteNav, SITE_NAV_H } from '@/components/layout/site-nav'
 import { formatKRW } from '@/utils/format'
@@ -24,7 +24,7 @@ type ViewId = 'grid' | 'list'
 const PAGE_SIZE = 50
 
 const SORT_OPTIONS: { value: SortId; label: string }[] = [
-  { value: 'newest',    label: '최근 저장순' },
+  { value: 'newest',    label: '최근순' },
   { value: 'oldest',    label: '오래된순' },
   { value: 'cost-asc',  label: '비용 낮은순' },
   { value: 'cost-desc', label: '비용 높은순' },
@@ -44,15 +44,44 @@ function CongestionBadge({ level }: { level: CongestionLevel }) {
   )
 }
 
+/* ── Heart Button ───────────────────────────────────────────────── */
+
+function HeartButton({
+  isSaved, onClick, size = 32,
+}: {
+  isSaved: boolean
+  onClick: (e: React.MouseEvent) => void
+  size?: number
+}) {
+  return (
+    <button
+      onClick={onClick}
+      aria-label={isSaved ? '저장 취소' : '저장하기'}
+      style={{
+        width: size, height: size,
+        borderRadius: 'var(--radius-sm)',
+        border: `1px solid ${isSaved ? 'rgba(232,84,122,0.35)' : 'var(--border)'}`,
+        background: isSaved ? 'rgba(232,84,122,0.12)' : 'transparent',
+        color: isSaved ? 'var(--accent)' : 'var(--fg-3)',
+        cursor: 'pointer', fontSize: size === 26 ? 12 : 14,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        transition: 'all var(--dur-fast) var(--ease-out)',
+        flexShrink: 0,
+      }}
+    >
+      {isSaved ? '♥' : '♡'}
+    </button>
+  )
+}
+
 /* ── Grid Card ──────────────────────────────────────────────────── */
 
 function GridCard({
-  course, isVisited, onUnsave, onVisitToggle,
+  course, isSaved, onToggleSave,
 }: {
   course: Course
-  isVisited: boolean
-  onUnsave: (id: string) => void
-  onVisitToggle: (id: string) => void
+  isSaved: boolean
+  onToggleSave: (id: string) => void
 }) {
   const router = useRouter()
 
@@ -85,35 +114,15 @@ function GridCard({
         background: 'var(--grad-amber)', overflow: 'hidden',
       }}>
         <MapThumbnail places={course.places} />
+        <div style={{ position: 'absolute', inset: 0, background: 'var(--grad-skyline)' }} />
         <div style={{
-          position: 'absolute', inset: 0,
-          background: 'var(--grad-skyline)',
-        }} />
-        <div style={{
-          position: 'absolute', top: 8, left: 8, right: 8,
-          display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+          position: 'absolute', top: 8, right: 8,
         }}>
-          <span style={{
-            fontSize: 10, fontWeight: 700,
-            padding: '2px 7px', borderRadius: 'var(--radius-pill)',
-            background: 'rgba(0,0,0,0.50)',
-            backdropFilter: 'blur(6px)',
-            color: isVisited ? 'var(--success)' : 'var(--primary)',
-          }}>
-            {isVisited ? '방문함' : '저장됨'}
-          </span>
-          <button
-            onClick={e => { e.stopPropagation(); onUnsave(course.id) }}
-            aria-label="저장 취소"
-            style={{
-              width: 26, height: 26,
-              borderRadius: 'var(--radius-sm)', border: 'none',
-              background: 'rgba(0,0,0,0.50)',
-              backdropFilter: 'blur(6px)',
-              color: 'var(--accent)', cursor: 'pointer', fontSize: 13,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}
-          >♥</button>
+          <HeartButton
+            isSaved={isSaved}
+            size={26}
+            onClick={e => { e.stopPropagation(); onToggleSave(course.id) }}
+          />
         </div>
         <div style={{
           position: 'absolute', bottom: 8, left: 8,
@@ -145,16 +154,8 @@ function GridCard({
       <div style={{
         padding: '7px 12px',
         borderTop: '1px solid var(--border)',
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        display: 'flex', justifyContent: 'flex-end', alignItems: 'center',
       }}>
-        <button
-          onClick={e => { e.stopPropagation(); onVisitToggle(course.id) }}
-          style={{
-            fontSize: 10, padding: 0, background: 'none', border: 'none',
-            color: isVisited ? 'var(--success)' : 'var(--fg-3)',
-            cursor: 'pointer', fontFamily: 'var(--font-sans)',
-          }}
-        >{isVisited ? '✓ 방문함' : '+ 방문 표시'}</button>
         <span style={{ fontSize: 11, color: 'var(--fg-2)', pointerEvents: 'none' }}>
           다시 보기 →
         </span>
@@ -166,12 +167,11 @@ function GridCard({
 /* ── List Row ───────────────────────────────────────────────────── */
 
 function ListRow({
-  course, isVisited, onUnsave, onVisitToggle,
+  course, isSaved, onToggleSave,
 }: {
   course: Course
-  isVisited: boolean
-  onUnsave: (id: string) => void
-  onVisitToggle: (id: string) => void
+  isSaved: boolean
+  onToggleSave: (id: string) => void
 }) {
   const router = useRouter()
 
@@ -227,31 +227,10 @@ function ListRow({
         style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}
         onClick={e => e.stopPropagation()}
       >
-        <div style={{ display: 'flex', gap: 6 }}>
-          <button
-            onClick={() => onVisitToggle(course.id)}
-            aria-label={isVisited ? '방문 취소' : '방문 표시'}
-            style={{
-              width: 32, height: 32, borderRadius: 'var(--radius-sm)',
-              border: '1px solid var(--border)',
-              background: isVisited ? 'rgba(52,199,123,0.10)' : 'transparent',
-              color: isVisited ? 'var(--success)' : 'var(--fg-3)',
-              cursor: 'pointer', fontSize: 13,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}
-          >✓</button>
-          <button
-            onClick={() => onUnsave(course.id)}
-            aria-label="저장 취소"
-            style={{
-              width: 32, height: 32, borderRadius: 'var(--radius-sm)',
-              border: '1px solid var(--border)',
-              background: 'rgba(232,84,122,0.10)',
-              color: 'var(--accent)', cursor: 'pointer', fontSize: 14,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}
-          >♥</button>
-        </div>
+        <HeartButton
+          isSaved={isSaved}
+          onClick={() => onToggleSave(course.id)}
+        />
         <span style={{ fontSize: 11, color: 'var(--fg-3)', pointerEvents: 'none' }}>
           다시 보기 →
         </span>
@@ -288,17 +267,19 @@ function GridSkeleton() {
 /* ── Empty State ────────────────────────────────────────────────── */
 
 function EmptyState({ tab, onNav }: { tab: TabId; onNav: () => void }) {
+  const config = {
+    all:      { icon: '🗺️', text: '코스 히스토리가 없어요' },
+    searched: { icon: '🔍', text: '검색한 코스가 없어요' },
+    saved:    { icon: '🔖', text: '저장한 코스가 없어요' },
+  }
+  const { icon, text } = config[tab]
   return (
     <div style={{
       display: 'flex', flexDirection: 'column', alignItems: 'center',
       padding: '80px 24px', gap: 12, textAlign: 'center',
     }}>
-      <div style={{ fontSize: 44 }}>
-        {tab === 'all' ? '🗺️' : tab === 'searched' ? '🔍' : '🔖'}
-      </div>
-      <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--fg)' }}>
-        {tab === 'all' ? '저장한 코스가 없어요' : '아직 해당 코스가 없어요'}
-      </div>
+      <div style={{ fontSize: 44 }}>{icon}</div>
+      <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--fg)' }}>{text}</div>
       <div style={{ fontSize: 13, color: 'var(--fg-2)', lineHeight: 1.6 }}>
         AI에게 서울 코스를 추천받아보세요
       </div>
@@ -343,9 +324,9 @@ function Toast({ message, onClose }: { message: string; onClose: () => void }) {
 export default function HistoryPage() {
   const router     = useRouter()
   const fetchedRef = useRef(false)
-  const coursesRef = useRef<Course[]>([])
 
   const [allCourses,  setAllCourses]  = useState<Course[]>([])
+  const [savedIds,    setSavedIds]    = useState<Set<string>>(new Set())
   const [total,       setTotal]       = useState(0)
   const [page,        setPage]        = useState(1)
   const [loading,     setLoading]     = useState(true)
@@ -354,26 +335,26 @@ export default function HistoryPage() {
   const [tab,         setTab]         = useState<TabId>('all')
   const [sort,        setSort]        = useState<SortId>('newest')
   const [view,        setView]        = useState<ViewId>('list')
-  const [visited,     setVisited]     = useState<Set<string>>(new Set())
   const [toast,       setToast]       = useState<string | null>(null)
 
-  /* Keep ref in sync for optimistic-revert without stale closures */
-  useEffect(() => { coursesRef.current = allCourses }, [allCourses])
-
   /* ── Fetch ──────────────────────────────────────────────────── */
-  const fetchPage = useCallback(async (pg: number, append = false) => {
+  const fetchPage = useCallback(async (pg: number) => {
     if (pg === 1) setLoading(true)
     else          setLoadingMore(true)
     setError(null)
     try {
-      const result = await getMyCourses(pg, PAGE_SIZE)
-      const mapped = result.courses.map(c => ({ ...c, isSaved: true }))
-      if (append) {
-        setAllCourses(prev => [...prev, ...mapped])
-      } else {
-        setAllCourses(mapped)
-        setTotal(result.total)
+      if (pg === 1) {
+        const [histResult, savedResult] = await Promise.all([
+          getMyCourses(1, PAGE_SIZE),
+          getSavedCourses(1, 200),
+        ])
+        setSavedIds(new Set(savedResult.courses.map(c => c.id)))
+        setAllCourses(histResult.courses)
+        setTotal(histResult.total)
         setPage(1)
+      } else {
+        const histResult = await getMyCourses(pg, PAGE_SIZE)
+        setAllCourses(prev => [...prev, ...histResult.courses])
       }
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : '오류가 발생했어요'
@@ -396,28 +377,25 @@ export default function HistoryPage() {
   }, [fetchPage])
 
   /* ── Derived state ──────────────────────────────────────────── */
-  const tabCounts = useMemo(() => {
-    const savedInList = allCourses.filter(c => visited.has(c.id)).length
-    return {
-      all:      allCourses.length,
-      searched: allCourses.length - savedInList,
-      saved:    savedInList,
-    }
-  }, [allCourses, visited])
+  const tabCounts = useMemo(() => ({
+    all:      allCourses.length,
+    searched: allCourses.filter(c => !savedIds.has(c.id)).length,
+    saved:    allCourses.filter(c =>  savedIds.has(c.id)).length,
+  }), [allCourses, savedIds])
 
   const filtered = useMemo(() => {
     let list = allCourses
-    if (tab === 'searched') list = list.filter(c => !visited.has(c.id))
-    if (tab === 'saved')    list = list.filter(c =>  visited.has(c.id))
+    if (tab === 'searched') list = list.filter(c => !savedIds.has(c.id))
+    if (tab === 'saved')    list = list.filter(c =>  savedIds.has(c.id))
     const out = [...list]
     switch (sort) {
-      case 'oldest':    out.sort((a, b) => a.id.localeCompare(b.id));         break
-      case 'cost-asc':  out.sort((a, b) => a.totalCost - b.totalCost);        break
-      case 'cost-desc': out.sort((a, b) => b.totalCost - a.totalCost);        break
-      default:          out.sort((a, b) => b.id.localeCompare(a.id));         break
+      case 'oldest':    out.sort((a, b) => a.id.localeCompare(b.id));  break
+      case 'cost-asc':  out.sort((a, b) => a.totalCost - b.totalCost); break
+      case 'cost-desc': out.sort((a, b) => b.totalCost - a.totalCost); break
+      default:          out.sort((a, b) => b.id.localeCompare(a.id));  break
     }
     return out
-  }, [allCourses, tab, sort, visited])
+  }, [allCourses, tab, sort, savedIds])
 
   const placeCount = useMemo(
     () => allCourses.reduce((s, c) => s + c.places.length, 0),
@@ -432,33 +410,42 @@ export default function HistoryPage() {
     { id: 'saved',    label: '저장됨' },
   ]
 
-  /* ── Handlers ───────────────────────────────────────────────── */
-  const handleUnsave = useCallback(async (id: string) => {
-    const snapshot = coursesRef.current.find(c => c.id === id)
-    setAllCourses(prev => prev.filter(c => c.id !== id))
-    setTotal(t => Math.max(0, t - 1))
-    try {
-      await unsaveCourse(id)
-    } catch {
-      if (snapshot) setAllCourses(prev => [...prev, snapshot])
-      setTotal(t => t + 1)
-      setToast('오류가 발생했어요')
-    }
-  }, [])
+  const GROUP_LABEL: Record<TabId, string> = {
+    all:      '전체 코스',
+    searched: '검색한 코스',
+    saved:    '저장한 코스',
+  }
 
-  const handleVisitToggle = useCallback((id: string) => {
-    setVisited(prev => {
+  /* ── Handlers ───────────────────────────────────────────────── */
+  const handleToggleSave = useCallback(async (id: string) => {
+    const wasSaved = savedIds.has(id)
+
+    setSavedIds(prev => {
       const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else              next.add(id)
+      wasSaved ? next.delete(id) : next.add(id)
       return next
     })
-  }, [])
+
+    try {
+      if (wasSaved) {
+        await unsaveCourse(id)
+      } else {
+        await saveCourse(id)
+      }
+    } catch {
+      setSavedIds(prev => {
+        const next = new Set(prev)
+        wasSaved ? next.add(id) : next.delete(id)
+        return next
+      })
+      setToast('오류가 발생했어요')
+    }
+  }, [savedIds])
 
   const handleLoadMore = () => {
     const nextPage = page + 1
     setPage(nextPage)
-    fetchPage(nextPage, true)
+    fetchPage(nextPage)
   }
 
   /* ── Render ─────────────────────────────────────────────────── */
@@ -492,7 +479,7 @@ export default function HistoryPage() {
             </h1>
             {!loading && allCourses.length > 0 && (
               <span style={{ fontSize: 12, color: 'var(--fg-3)' }}>
-                총 {allCourses.length}개 코스 · {placeCount}개 장소 방문
+                총 {allCourses.length}개 코스 · {placeCount}개 장소
               </span>
             )}
           </div>
@@ -583,9 +570,7 @@ export default function HistoryPage() {
 
         {/* Loading */}
         {loading && (
-          <div style={{
-            display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12,
-          }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
             {Array.from({ length: 6 }).map((_, i) => <GridSkeleton key={i} />)}
           </div>
         )}
@@ -620,27 +605,22 @@ export default function HistoryPage() {
         {/* Course list */}
         {!loading && !error && filtered.length > 0 && (
           <>
-            {/* Group header */}
             <div style={{
               fontSize: 13, fontWeight: 600, color: 'var(--fg-2)', marginBottom: 16,
             }}>
-              저장한 코스
+              {GROUP_LABEL[tab]}
               <span style={{
                 marginLeft: 8, fontSize: 12, color: 'var(--fg-3)', fontWeight: 400,
               }}>{filtered.length}개</span>
             </div>
 
-            {/* Cards */}
             {view === 'grid' ? (
-              <div style={{
-                display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12,
-              }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
                 {filtered.map(c => (
                   <GridCard
                     key={c.id} course={c}
-                    isVisited={visited.has(c.id)}
-                    onUnsave={handleUnsave}
-                    onVisitToggle={handleVisitToggle}
+                    isSaved={savedIds.has(c.id)}
+                    onToggleSave={handleToggleSave}
                   />
                 ))}
               </div>
@@ -649,15 +629,13 @@ export default function HistoryPage() {
                 {filtered.map(c => (
                   <ListRow
                     key={c.id} course={c}
-                    isVisited={visited.has(c.id)}
-                    onUnsave={handleUnsave}
-                    onVisitToggle={handleVisitToggle}
+                    isSaved={savedIds.has(c.id)}
+                    onToggleSave={handleToggleSave}
                   />
                 ))}
               </div>
             )}
 
-            {/* 더 보기 */}
             {hasMore && (
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: 24 }}>
                 <button
