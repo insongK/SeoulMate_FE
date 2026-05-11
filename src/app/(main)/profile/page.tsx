@@ -8,6 +8,7 @@ import { logout } from '@/lib/auth'
 import { VIBES } from '@/constants/vibe'
 import type { UserProfile } from '@/types/user.types'
 import { Skeleton } from '@/components/ui/skeleton'
+import { SiteNav, SITE_NAV_H } from '@/components/layout/site-nav'
 
 /* ── Constants ────────────────────────────────────────────────── */
 
@@ -177,7 +178,9 @@ export default function ProfilePage() {
         }
       `}</style>
 
-      <div style={{ background: 'var(--bg)', color: 'var(--fg)', fontFamily: 'var(--font-sans)' }}>
+      <div style={{ background: 'var(--bg)', color: 'var(--fg)', fontFamily: 'var(--font-sans)', paddingTop: SITE_NAV_H }}>
+
+        <SiteNav />
 
         {/* Toast */}
         {toast && (
@@ -249,7 +252,7 @@ export default function ProfilePage() {
         <div className="profile-layout">
 
           {/* ── Sidebar ───────────────────────────────────────── */}
-          <aside className="profile-sidebar" style={{ position: 'sticky', top: 24 }}>
+          <aside className="profile-sidebar" style={{ position: 'sticky', top: SITE_NAV_H + 16 }}>
 
             {/* Profile card */}
             <div style={{

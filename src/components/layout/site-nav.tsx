@@ -39,7 +39,10 @@ export function SiteNav() {
 
   useEffect(() => {
     const stored = localStorage.getItem('seoulmate-theme')
-    if (stored) setIsDark(stored === 'dark')
+    if (stored) {
+      setIsDark(stored === 'dark')
+      document.documentElement.setAttribute('data-theme', stored)
+    }
   }, [])
 
   const toggleTheme = () => {
