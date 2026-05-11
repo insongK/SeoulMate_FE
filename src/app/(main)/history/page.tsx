@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { getMyCourses, unsaveCourse } from '@/queries/course.queries'
+import { MapThumbnail } from '@/components/map/map-thumbnail'
 import { formatKRW } from '@/utils/format'
 import type { Course, CongestionLevel } from '@/types/course.types'
 
@@ -15,7 +16,7 @@ const CONGESTION: Record<CongestionLevel, { label: string; color: string; bg: st
   unknown: { label: '정보없음',   color: 'var(--fg-3)',    bg: 'rgba(255,255,255,0.06)' },
 }
 
-type TabId  = 'all' | 'saved' | 'visited'
+type TabId  = 'all' | 'searched' | 'saved'
 type SortId = 'newest' | 'oldest' | 'cost-asc' | 'cost-desc'
 type ViewId = 'grid' | 'list'
 
@@ -82,10 +83,7 @@ function GridCard({
         height: 108, flexShrink: 0, position: 'relative',
         background: 'var(--grad-amber)', overflow: 'hidden',
       }}>
-        {course.thumbnail && (
-          <img src={course.thumbnail} alt={course.title}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        )}
+        <MapThumbnail places={course.places} />
         <div style={{
           position: 'absolute', inset: 0,
           background: 'var(--grad-skyline)',
@@ -196,11 +194,9 @@ function ListRow({
         width: 72, height: 72, flexShrink: 0,
         background: 'var(--grad-amber)',
         borderRadius: 'var(--radius-md)', overflow: 'hidden',
+        position: 'relative',
       }}>
-        {course.thumbnail && (
-          <img src={course.thumbnail} alt={course.title}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        )}
+        <MapThumbnail places={course.places} />
       </div>
 
       {/* Info */}
@@ -297,7 +293,7 @@ function EmptyState({ tab, onNav }: { tab: TabId; onNav: () => void }) {
       padding: '80px 24px', gap: 12, textAlign: 'center',
     }}>
       <div style={{ fontSize: 44 }}>
-        {tab === 'all' ? '🗺️' : tab === 'saved' ? '🔖' : '📍'}
+        {tab === 'all' ? '🗺️' : tab === 'searched' ? '🔍' : '🔖'}
       </div>
       <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--fg)' }}>
         {tab === 'all' ? '저장한 코스가 없어요' : '아직 해당 코스가 없어요'}
@@ -400,18 +396,18 @@ export default function HistoryPage() {
 
   /* ── Derived state ──────────────────────────────────────────── */
   const tabCounts = useMemo(() => {
-    const visitedInList = allCourses.filter(c => visited.has(c.id)).length
+    const savedInList = allCourses.filter(c => visited.has(c.id)).length
     return {
-      all:     allCourses.length,
-      saved:   allCourses.length - visitedInList,
-      visited: visitedInList,
+      all:      allCourses.length,
+      searched: allCourses.length - savedInList,
+      saved:    savedInList,
     }
   }, [allCourses, visited])
 
   const filtered = useMemo(() => {
     let list = allCourses
-    if (tab === 'saved')   list = list.filter(c => !visited.has(c.id))
-    if (tab === 'visited') list = list.filter(c =>  visited.has(c.id))
+    if (tab === 'searched') list = list.filter(c => !visited.has(c.id))
+    if (tab === 'saved')    list = list.filter(c =>  visited.has(c.id))
     const out = [...list]
     switch (sort) {
       case 'oldest':    out.sort((a, b) => a.id.localeCompare(b.id));         break
@@ -430,9 +426,9 @@ export default function HistoryPage() {
   const hasMore = allCourses.length < total
 
   const TABS: { id: TabId; label: string }[] = [
-    { id: 'all',     label: '전체'  },
-    { id: 'saved',   label: '저장됨' },
-    { id: 'visited', label: '방문함' },
+    { id: 'all',      label: '전체'  },
+    { id: 'searched', label: '검색함' },
+    { id: 'saved',    label: '저장됨' },
   ]
 
   /* ── Handlers ───────────────────────────────────────────────── */
