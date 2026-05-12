@@ -28,6 +28,7 @@ export interface Place {
   cost?: number
   congestion?: Congestion
   imageUrl?: string
+  mapUrl?: string
 }
 
 export interface Course {

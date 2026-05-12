@@ -22,6 +22,7 @@ interface ApiPlaceSummary {
   lat: number
   lng: number
   order: number
+  mapUrl?: string
 }
 
 interface ApiPlaceDetail extends ApiPlaceSummary {
@@ -95,11 +96,12 @@ function mapApiCourse(raw: ApiCourse, isSaved = false): Course {
     title:              raw.title,
     description:        raw.description ?? '',
     places:             raw.places.map(p => ({
-      id:    p.id,
-      name:  p.name,
-      lat:   p.lat,
-      lng:   p.lng,
-      order: p.order,
+      id:     p.id,
+      name:   p.name,
+      lat:    p.lat,
+      lng:    p.lng,
+      order:  p.order,
+      mapUrl: p.mapUrl,
     })),
     totalDuration:      formatDuration(raw.duration),
     durationMinutes:    raw.duration,
@@ -129,6 +131,7 @@ function mapApiCourseDetail(raw: ApiCourseDetail): Course {
       lat:         p.lat,
       lng:         p.lng,
       order:       p.order,
+      mapUrl:      p.mapUrl,
       duration:    p.stayDuration,
       cost:        p.priceMin != null && p.priceMax != null
                      ? Math.round((p.priceMin + p.priceMax) / 2)

@@ -585,7 +585,7 @@ export default function ResultDetailPage() {
                             fontSize: 11, fontWeight: 600,
                           }}>{cLabel}</span>
                           <a
-                            href={`https://map.kakao.com/link/map/${encodeURIComponent(place.name)},${place.lat},${place.lng}`}
+                            href={place.mapUrl ?? `https://map.kakao.com/link/map/${encodeURIComponent(place.name)},${place.lat},${place.lng}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={e => e.stopPropagation()}
