@@ -144,6 +144,8 @@ function SignupPageInner() {
   const [confirmFocus, setConfirmFocus]     = useState(false)
 
   const [isDark, setIsDark]                 = useState(true)
+  const [showTerms, setShowTerms]           = useState(false)
+  const [termsTab, setTermsTab]             = useState<'terms' | 'privacy'>('terms')
 
   useEffect(() => {
     const stored = localStorage.getItem('seoulmate-theme')
@@ -257,6 +259,15 @@ function SignupPageInner() {
 
         input::placeholder { color: ${t.placeholder}; opacity: 1; }
       `}</style>
+
+      {showTerms && (
+        <TermsModal
+          tab={termsTab}
+          onTabChange={setTermsTab}
+          onClose={() => setShowTerms(false)}
+          isDark={isDark}
+        />
+      )}
 
       <div
         className={styles.wrapper}
@@ -660,7 +671,7 @@ function SignupPageInner() {
                   서비스 이용약관 및 개인정보처리방침에 동의합니다{' '}
                   <a
                     href="#"
-                    onClick={e => e.stopPropagation()}
+                    onClick={e => { e.preventDefault(); e.stopPropagation(); setTermsTab('terms'); setShowTerms(true) }}
                     style={{ color: '#F5A623', textDecoration: 'underline' }}
                   >
                     내용 보기
@@ -727,6 +738,251 @@ function SignupPageInner() {
         </div>
       </div>
     </>
+  )
+}
+
+/* ── Terms Modal ────────────────────────────────────────────── */
+
+const TERMS_CONTENT = `제1조 (목적)
+이 약관은 SeoulMate(이하 "서비스")를 이용함에 있어 서비스 제공자와 이용자 간의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.
+
+제2조 (정의)
+① "서비스"란 SeoulMate가 제공하는 AI 기반 서울 코스 추천 및 관련 부가서비스를 의미합니다.
+② "이용자"란 본 약관에 따라 서비스에 접속하여 서비스를 이용하는 회원 및 비회원을 말합니다.
+③ "회원"이란 서비스에 개인정보를 제공하여 회원 등록을 한 자로, 계속적으로 서비스를 이용할 수 있는 자를 말합니다.
+
+제3조 (서비스의 제공)
+① 서비스는 연중무휴 24시간 제공함을 원칙으로 합니다.
+② 서비스는 시스템 점검, 서버 증설 및 교체, 네트워크 불안정 등의 사유가 발생하면 일시적으로 서비스를 중단할 수 있습니다.
+③ 서비스는 이용자에게 서비스 내용 변경 사항을 사전에 공지할 수 있습니다.
+
+제4조 (회원가입 및 계정 관리)
+① 이용자는 서비스가 정한 양식에 따라 회원 정보를 기입한 후 본 약관에 동의한다는 의사표시를 함으로써 회원 가입을 신청합니다.
+② 회원은 회원가입 시 등록한 사항에 변경이 있는 경우 즉시 수정하여야 합니다.
+③ 회원의 계정 및 비밀번호에 관한 관리 책임은 회원에게 있습니다.
+
+제5조 (이용자의 의무)
+이용자는 다음 행위를 하여서는 안 됩니다.
+① 타인의 정보 도용
+② 서비스에서 얻은 정보를 서비스의 사전 승낙 없이 복제하거나 상업적으로 이용하는 행위
+③ 서비스의 운영을 방해하는 행위
+④ 관련 법령에 위반되는 행위
+
+제6조 (서비스 변경 및 중단)
+① 서비스는 상당한 이유가 있는 경우 운영상·기술상의 필요에 따라 서비스의 전부 또는 일부를 변경할 수 있습니다.
+② 서비스는 무료로 제공되는 서비스의 일부 또는 전부를 서비스의 정책 및 운영의 필요성에 따라 수정·중단·변경할 수 있으며, 이에 대해 관련 법령에 특별한 규정이 없는 한 이용자에게 별도의 보상을 하지 않습니다.
+
+제7조 (면책조항)
+① 서비스는 천재지변, 전쟁 등 불가항력으로 인하여 서비스를 제공할 수 없는 경우에는 책임이 면제됩니다.
+② 서비스는 이용자의 귀책사유로 인한 서비스 이용 장애에 대해 책임을 지지 않습니다.
+③ 서비스에서 제공하는 AI 추천 결과는 참고용이며, 이에 따른 이용자의 최종 선택과 결과에 대한 책임은 이용자에게 있습니다.
+
+제8조 (분쟁 해결)
+서비스와 이용자 간에 발생한 분쟁에 대해서는 대한민국 법률을 적용하며, 분쟁이 발생할 경우 민사소송법에 따른 관할 법원에 소를 제기할 수 있습니다.
+
+부칙
+이 약관은 2025년 1월 1일부터 시행됩니다.`
+
+const PRIVACY_CONTENT = `SeoulMate(이하 "서비스")는 이용자의 개인정보를 중요시하며, 「개인정보 보호법」을 준수합니다.
+
+제1조 (수집하는 개인정보 항목)
+서비스는 회원가입 및 서비스 이용을 위해 아래와 같은 개인정보를 수집합니다.
+
+[필수 항목]
+• 이메일 주소
+• 비밀번호 (암호화 저장)
+• 닉네임
+
+[선택 항목]
+• 선호 분위기 (바이브 태그)
+
+[자동 수집 항목]
+• 서비스 이용 기록, 접속 로그, IP 주소, 쿠키
+
+제2조 (개인정보의 수집 및 이용목적)
+수집한 개인정보는 다음의 목적을 위해 활용합니다.
+① 회원 가입 의사 확인, 회원 식별 및 본인 확인
+② 서비스 제공 및 AI 코스 추천 개인화
+③ 서비스 이용에 관한 통지, 고충 처리
+④ 서비스 개선 및 신규 서비스 개발
+
+제3조 (개인정보의 보유 및 이용기간)
+원칙적으로 개인정보 수집 및 이용목적이 달성된 후에는 해당 정보를 지체 없이 파기합니다.
+단, 관계 법령의 규정에 의하여 보존할 필요가 있는 경우 아래와 같이 보관합니다.
+
+• 회원 탈퇴 시: 즉시 파기
+• 서비스 이용 기록, 접속 로그: 3개월 (통신비밀보호법)
+• 소비자 불만 또는 분쟁 처리 기록: 3년 (전자상거래 등에서의 소비자보호에 관한 법률)
+
+제4조 (개인정보의 제3자 제공)
+서비스는 이용자의 개인정보를 원칙적으로 외부에 제공하지 않습니다. 다만, 아래의 경우에는 예외로 합니다.
+① 이용자가 사전에 동의한 경우
+② 법령의 규정에 의거하거나 수사 목적으로 법령에 정해진 절차와 방법에 따라 수사기관의 요구가 있는 경우
+
+제5조 (개인정보의 처리 위탁)
+서비스는 원활한 서비스 제공을 위해 아래와 같이 개인정보 처리 업무를 위탁하고 있습니다.
+
+• 수탁업체: Amazon Web Services (AWS)
+  - 위탁 업무: 서버 인프라 운영 및 데이터 보관
+  - 보유 기간: 서비스 이용 계약 종료 시까지
+
+제6조 (이용자의 권리)
+이용자는 언제든지 다음의 권리를 행사할 수 있습니다.
+① 개인정보 열람 요청
+② 오류 정정 요청
+③ 삭제 요청 (회원 탈퇴)
+④ 처리 정지 요청
+
+권리 행사는 서비스 내 계정 설정 또는 아래 개인정보 보호책임자에게 문의하여 처리할 수 있습니다.
+
+제7조 (개인정보 보호책임자)
+서비스는 이용자의 개인정보 관련 문의 및 불만 처리를 위해 아래와 같이 개인정보 보호책임자를 지정하고 있습니다.
+
+• 이메일: privacy@seoulmate.my
+
+제8조 (개인정보의 안전성 확보 조치)
+서비스는 개인정보 보호법에 따라 다음과 같은 조치를 취하고 있습니다.
+① 비밀번호 암호화 (단방향 암호화 처리)
+② 해킹 등에 대비한 기술적 대책 (SSL/TLS 암호화 통신)
+③ 접근 권한 최소화
+
+부칙
+이 방침은 2025년 1월 1일부터 시행됩니다.`
+
+function TermsModal({
+  tab,
+  onTabChange,
+  onClose,
+  isDark,
+}: {
+  tab: 'terms' | 'privacy'
+  onTabChange: (t: 'terms' | 'privacy') => void
+  onClose: () => void
+  isDark: boolean
+}) {
+  const bg      = isDark ? '#1A1A1A' : '#FFFFFF'
+  const border  = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.1)'
+  const fg      = isDark ? '#FFFFFF' : '#1A1A2E'
+  const fg2     = isDark ? '#A0A0A0' : '#555577'
+  const tabBg   = isDark ? '#111111' : '#F5F5FA'
+  const content = tab === 'terms' ? TERMS_CONTENT : PRIVACY_CONTENT
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 9999,
+        background: 'rgba(0,0,0,0.65)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '16px',
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: bg,
+          border: `1px solid ${border}`,
+          borderRadius: '16px',
+          width: '100%', maxWidth: '560px',
+          maxHeight: '80vh',
+          display: 'flex', flexDirection: 'column',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Header */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '20px 24px 0',
+          flexShrink: 0,
+        }}>
+          <p style={{
+            fontFamily: 'Pretendard, sans-serif',
+            fontWeight: 700, fontSize: '17px', color: fg,
+          }}>
+            이용약관 및 개인정보처리방침
+          </p>
+          <button
+            onClick={onClose}
+            style={{
+              width: 32, height: 32,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'transparent', border: 'none',
+              cursor: 'pointer', color: fg2, borderRadius: '50%',
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div style={{
+          display: 'flex', gap: '4px',
+          margin: '16px 24px 0',
+          background: tabBg,
+          borderRadius: '10px', padding: '4px',
+          flexShrink: 0,
+        }}>
+          {([['terms', '서비스 이용약관'], ['privacy', '개인정보처리방침']] as const).map(([id, label]) => (
+            <button
+              key={id}
+              onClick={() => onTabChange(id)}
+              style={{
+                flex: 1, height: '34px', borderRadius: '8px', border: 'none',
+                fontFamily: 'Pretendard, sans-serif',
+                fontSize: '13px', fontWeight: tab === id ? 600 : 400,
+                cursor: 'pointer',
+                background: tab === id ? (isDark ? '#2A2A2A' : '#FFFFFF') : 'transparent',
+                color: tab === id ? '#F5A623' : fg2,
+                boxShadow: tab === id ? '0 1px 4px rgba(0,0,0,0.15)' : 'none',
+                transition: 'all 0.2s',
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Content */}
+        <div style={{
+          overflowY: 'auto', padding: '20px 24px 24px',
+          flex: 1,
+        }}>
+          <pre style={{
+            fontFamily: 'Pretendard, sans-serif',
+            fontSize: '13px', lineHeight: 1.8,
+            color: fg2, whiteSpace: 'pre-wrap', wordBreak: 'keep-all',
+            margin: 0,
+          }}>
+            {content}
+          </pre>
+        </div>
+
+        {/* Footer */}
+        <div style={{
+          padding: '16px 24px',
+          borderTop: `1px solid ${border}`,
+          flexShrink: 0,
+        }}>
+          <button
+            onClick={onClose}
+            style={{
+              width: '100%', height: '44px', borderRadius: '10px', border: 'none',
+              background: 'linear-gradient(135deg, #F5A623 0%, #E8954A 100%)',
+              fontFamily: 'Pretendard, sans-serif',
+              fontWeight: 700, fontSize: '14px', color: '#000000',
+              cursor: 'pointer',
+            }}
+          >
+            확인했습니다
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }
 
